@@ -83,7 +83,9 @@ impl Horse {
 			);
 
 			for honse in honses {
-				if honse == self { continue; }
+				if honse == self {
+					continue;
+				}
 				collision[i] |= honse.pos.distance(pos) <= DIR_WIDTH as f32;
 			}
 		}
@@ -137,5 +139,8 @@ fn fuse_collisions_test() {
 	let c1 = [false, true, true, true, false, false, false, false];
 	let c2 = [false, false, true, true, true, false, false, false];
 
-	assert_eq!(fuse_collisions(c1, c2), [false, true, true, true, true, false, false, false])
+	assert_eq!(
+		fuse_collisions(c1, c2),
+		[false, true, true, true, true, false, false, false]
+	)
 }

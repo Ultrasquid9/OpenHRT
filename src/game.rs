@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::horse::{fuse_collisions, Collision, Horse, NO_COLLISION};
+use crate::horse::{Collision, Horse, NO_COLLISION, fuse_collisions};
 
 pub struct Game {
 	foreground: Image,
@@ -30,18 +30,20 @@ impl Game {
 		let collisions = self
 			.horses
 			.iter()
-			.map(|horse| fuse_collisions(
-				horse.collision_wall(&self.foreground), 
-				horse.collision_honses(&self.horses)
-			))
+			.map(|horse| {
+				fuse_collisions(
+					horse.collision_wall(&self.foreground),
+					horse.collision_honses(&self.horses),
+				)
+			})
 			.collect::<Vec<Collision>>();
 
-		for i in 0..self.horses.len() {
+		for (i, collision) in collisions.iter().enumerate() {
 			let honse = &mut self.horses[i];
 			honse.update();
 
-			if collisions[i] != NO_COLLISION {
-				honse.bounce(collisions[i]);
+			if *collision != NO_COLLISION {
+				honse.bounce(*collision);
 			}
 		}
 	}
