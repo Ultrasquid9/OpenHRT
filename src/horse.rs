@@ -1,4 +1,8 @@
+use core::f32;
+
 use macroquad::prelude::*;
+
+use crate::audio::play_bounce;
 
 pub type Collision = [bool; 8];
 pub type Dirs = [(i32, i32); 8];
@@ -44,8 +48,8 @@ impl Horse {
 	pub fn update(&mut self) {
 		self.pos += self.dir * self.speed;
 
-		if self.speed < 4.0 {
-			self.speed += 0.02;
+		if self.speed < 3.5 {
+			self.speed += 0.01;
 		}
 	}
 
@@ -83,12 +87,14 @@ impl Horse {
 		new_dir.y += rand::gen_range(-10., 10.);
 
 		self.dir = new_dir.normalize() * -1.;
-		self.speed = 1.;
+		self.speed = rand::gen_range(1., 2.);
+
+		play_bounce();
 	}
 }
 
 const fn normal(num: i32) -> i32 {
-	(num as f32 * 0.707107) as i32
+	(num as f32 * f32::consts::FRAC_1_SQRT_2) as i32
 }
 
 #[test]

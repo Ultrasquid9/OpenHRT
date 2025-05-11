@@ -65,7 +65,7 @@ impl Game {
 
 fn render_fullscreen_img(img: &Image) {
 	draw_texture_ex(
-		&Texture2D::from_image(&img),
+		&Texture2D::from_image(img),
 		0.,
 		0.,
 		WHITE,
