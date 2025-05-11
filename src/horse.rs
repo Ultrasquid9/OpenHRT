@@ -8,7 +8,7 @@ pub type Collision = [bool; 8];
 pub type Dirs = [(i32, i32); 8];
 
 pub const NO_COLLISION: Collision = [false; 8];
-pub const DIR_WIDTH: i32 = 16;
+pub const DIR_WIDTH: i32 = 22;
 
 #[rustfmt::skip]
 pub const DIRS: Dirs = [
@@ -22,7 +22,7 @@ pub const DIRS: Dirs = [
 	( DIR_WIDTH, 0),
 ];
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct Horse {
 	pub pos: Vec2,
 	pub dir: Vec2,
@@ -53,7 +53,7 @@ impl Horse {
 		}
 	}
 
-	pub fn collision(&self, image: &Image) -> Collision {
+	pub fn collision_wall(&self, image: &Image) -> Collision {
 		let mut collision = NO_COLLISION;
 
 		for i in 0..DIRS.len() {
@@ -64,6 +64,26 @@ impl Horse {
 
 			if matches!(image.get_pixel(x, y), pixel if pixel.a > 0.75) {
 				collision[i] = true;
+			}
+		}
+
+		collision
+	}
+
+	pub fn collision_honses(&self, honses: &[Horse]) -> Collision {
+		let mut collision = NO_COLLISION;
+
+		for i in 0..DIRS.len() {
+			let (dir_x, dir_y) = DIRS[i];
+
+			let pos = vec2(
+				(self.pos.x as i32 + dir_x) as f32,
+				(self.pos.y as i32 + dir_y) as f32,
+			);
+
+			for honse in honses {
+				if honse == self { continue; }
+				collision[i] |= honse.pos.distance(pos) <= DIR_WIDTH as f32;
 			}
 		}
 
@@ -93,6 +113,17 @@ impl Horse {
 	}
 }
 
+pub fn fuse_collisions(c1: Collision, c2: Collision) -> Collision {
+	let mut out = NO_COLLISION;
+
+	for i in 0..c1.len() {
+		out[i] |= c1[i];
+		out[i] |= c2[i];
+	}
+
+	out
+}
+
 const fn normal(num: i32) -> i32 {
 	(num as f32 * f32::consts::FRAC_1_SQRT_2) as i32
 }
@@ -100,4 +131,12 @@ const fn normal(num: i32) -> i32 {
 #[test]
 fn normal_test() {
 	assert_eq!(11, normal(16))
+}
+
+#[test]
+fn fuse_collisions_test() {
+	let c1 = [false, true, true, true, false, false, false, false];
+	let c2 = [false, false, true, true, true, false, false, false];
+
+	assert_eq!(fuse_collisions(c1, c2), [false, true, true, true, true, false, false, false])
 }

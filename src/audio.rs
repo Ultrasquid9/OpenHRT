@@ -1,5 +1,5 @@
-use std::sync::LazyLock;
 use parking_lot::RwLock;
+use std::sync::LazyLock;
 
 use kira::{
 	AudioManager, AudioManagerSettings, DefaultBackend, sound::static_sound::StaticSoundData,
@@ -10,7 +10,7 @@ use kira::{
 type AMan = RwLock<AudioManager<DefaultBackend>>;
 
 static MANAGER: LazyLock<AMan> = LazyLock::new(audio_manager);
-// TODO: System for loading other audio 
+// TODO: System for loading other audio
 static BOUNCE: LazyLock<StaticSoundData> =
 	LazyLock::new(|| StaticSoundData::from_file("./assets/bounce.flac").unwrap());
 
