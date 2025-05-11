@@ -1,0 +1,18 @@
+use macroquad::prelude::*;
+
+mod game;
+mod horse;
+
+#[macroquad::main("OpenHRT")]
+async fn main() {
+	let horses = [horse::Horse::new(vec2(400., 400.), ORANGE)];
+
+	let mut game = game::Game::new("./assets/arenatest1.png", &horses).await;
+
+	loop {
+		game.update();
+		game.draw();
+
+		next_frame().await
+	}
+}
