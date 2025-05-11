@@ -22,16 +22,21 @@ pub const DIRS: Dirs = [
 pub struct Horse {
 	pub pos: Vec2,
 	pub dir: Vec2,
-	pub color: Color,
+	pub texture: Texture2D,
 	pub speed: f32,
 }
 
 impl Horse {
-	pub fn new(pos: Vec2, color: Color) -> Self {
+	pub async fn new(pos: Vec2, img_path: &str) -> Self {
+		let image = match load_image(img_path).await {
+			Ok(ok) => ok,
+			Err(_) => todo!(),
+		};
+
 		Self {
 			pos,
 			dir: vec2(rand::gen_range(-1., 1.), rand::gen_range(-1., 1.)).normalize(),
-			color,
+			texture: Texture2D::from_image(&image),
 			speed: 1.,
 		}
 	}

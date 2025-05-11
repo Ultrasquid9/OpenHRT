@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::horse::{Horse, DIR_WIDTH, NO_COLLISION};
+use crate::horse::{Horse, NO_COLLISION};
 
 pub struct Game {
 	image: Image,
@@ -47,13 +47,22 @@ impl Game {
 			},
 		);
 
-		let horse_size = ((screen_width() + screen_height()) / 64.).min(DIR_WIDTH as f32);
+		let horse_size = (screen_width() + screen_height()) / 56.;
 
 		for horse in &self.horses {
 			let horse_pos_x = horse.pos.x / self.image.width() as f32 * screen_width();
 			let horse_pos_y = horse.pos.y / self.image.height() as f32 * screen_height();
 
-			draw_circle(horse_pos_x, horse_pos_y, horse_size, horse.color);
+			draw_texture_ex(
+				&horse.texture, 
+				horse_pos_x - (horse_size / 2.), 
+				horse_pos_y - (horse_size / 2.), 
+				WHITE, 
+				DrawTextureParams { 
+					dest_size: Some(vec2(horse_size, horse_size)), 
+					..Default::default()
+				}
+			);
 		}
 	}
 }
