@@ -4,7 +4,7 @@ use crate::horse::{Collision, Horse, NO_COLLISION, fuse_collisions};
 
 pub struct Game {
 	foreground: Image,
-	background: Image,
+	background: Texture2D,
 	horses: Vec<Horse>,
 }
 
@@ -21,7 +21,7 @@ impl Game {
 
 		Self {
 			foreground,
-			background,
+			background: Texture2D::from_image(&background),
 			horses: horses.to_vec(),
 		}
 	}
@@ -49,8 +49,8 @@ impl Game {
 	}
 
 	pub fn draw(&mut self) {
-		render_fullscreen_img(&self.background);
-		render_fullscreen_img(&self.foreground);
+		render_texture_fullscreen(&self.background);
+		render_texture_fullscreen(&Texture2D::from_image(&self.foreground));
 
 		let horse_size = (screen_width() + screen_height()) / 56.;
 
@@ -72,9 +72,9 @@ impl Game {
 	}
 }
 
-fn render_fullscreen_img(img: &Image) {
+fn render_texture_fullscreen(texture: &Texture2D) {
 	draw_texture_ex(
-		&Texture2D::from_image(img),
+		texture,
 		0.,
 		0.,
 		WHITE,
