@@ -1,6 +1,7 @@
 use core::f32;
 
 use macroquad::prelude::*;
+use simba::simd::AutoBoolx8;
 
 use crate::audio::play_bounce;
 
@@ -114,14 +115,12 @@ impl Horse {
 }
 
 pub fn fuse_collisions(c1: Collision, c2: Collision) -> Collision {
-	let mut out = NO_COLLISION;
+	let mut out = AutoBoolx8::ZERO;
 
-	for i in 0..c1.len() {
-		out[i] |= c1[i];
-		out[i] |= c2[i];
-	}
+	out = out | AutoBoolx8::from(c1);
+	out = out | AutoBoolx8::from(c2);
 
-	out
+	out.0
 }
 
 const fn normal(num: i32) -> i32 {
