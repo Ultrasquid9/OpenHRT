@@ -7,7 +7,12 @@ mod horse;
 async fn main() {
 	let horses = [horse::Horse::new(vec2(400., 400.), "./assets/purble.png").await];
 
-	let mut game = game::Game::new("./assets/arenatest1.png", &horses).await;
+	let mut game = game::Game::new(
+		"./assets/arenatest1.png",
+		"./assets/backgroundtest1.png",
+		&horses,
+	)
+	.await;
 
 	loop {
 		game.update();
