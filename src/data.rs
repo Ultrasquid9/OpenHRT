@@ -15,7 +15,7 @@ pub struct RaceData {
 
 #[derive(Deserialize)]
 pub struct HorseData {
-	sprite: PathBuf
+	sprite: PathBuf,
 }
 
 impl HorseData {
@@ -32,7 +32,7 @@ impl RaceData {
 	pub fn set_seed(self) -> Self {
 		macroquad::rand::srand(match self.seed {
 			Some(seed) => seed,
-			None => miniquad::date::now().to_bits()
+			None => miniquad::date::now().to_bits(),
 		});
 
 		self
@@ -46,9 +46,9 @@ impl RaceData {
 		}
 
 		Game::new(
-			&stringify(self.foreground), 
-			&stringify(self.background), 
-			&horses
+			&stringify(self.foreground),
+			&stringify(self.background),
+			&horses,
 		)
 		.await
 	}

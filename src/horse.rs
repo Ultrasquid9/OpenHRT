@@ -1,14 +1,13 @@
 use core::f32;
 
 use macroquad::prelude::*;
-use simba::simd::AutoBoolx8;
 
 use crate::audio::play_bounce;
 
-pub type Collision = [bool; 8];
+pub type Collisions = u8;
 pub type Dirs = [(i32, i32); 8];
 
-pub const NO_COLLISION: Collision = [false; 8];
+pub const NO_COLLISION: Collisions = 0;
 pub const DIR_WIDTH: i32 = 22;
 
 #[rustfmt::skip]
@@ -54,8 +53,8 @@ impl Horse {
 		}
 	}
 
-	pub fn collision_wall(&self, image: &Image) -> Collision {
-		let mut collision = NO_COLLISION;
+	pub fn collision_wall(&self, image: &Image) -> Collisions {
+		let mut collisions = NO_COLLISION;
 
 		for i in 0..DIRS.len() {
 			let (dir_x, dir_y) = DIRS[i];
@@ -64,15 +63,15 @@ impl Horse {
 			let y = (self.pos.y as i32 + dir_y) as u32;
 
 			if matches!(image.get_pixel(x, y), pixel if pixel.a > 0.75) {
-				collision[i] = true;
+				collisions |= 1 << i;
 			}
 		}
 
-		collision
+		collisions
 	}
 
-	pub fn collision_honses(&self, honses: &[Horse]) -> Collision {
-		let mut collision = NO_COLLISION;
+	pub fn collision_honses(&self, honses: &[Horse]) -> Collisions {
+		let mut collisions = NO_COLLISION;
 
 		for i in 0..DIRS.len() {
 			let (dir_x, dir_y) = DIRS[i];
@@ -86,22 +85,24 @@ impl Horse {
 				if honse == self {
 					continue;
 				}
-				collision[i] |= honse.pos.distance(pos) <= DIR_WIDTH as f32;
+				let bit = (honse.pos.distance(pos) <= DIR_WIDTH as f32) as u8;
+				collisions |= bit << i;
 			}
 		}
 
-		collision
+		collisions
 	}
 
-	pub fn bounce(&mut self, collision: Collision) {
+	pub fn bounce(&mut self, collisions: Collisions) {
 		let mut new_dir = Vec2::ZERO;
-
-		for i in 0..collision.len() {
-			if !collision[i] {
+		
+		for i in 0..u8::BITS {
+			let bits: u8 = 1 << i;
+			if collisions & bits != bits {
 				continue;
 			}
 
-			let (dir_x, dir_y) = DIRS[i];
+			let (dir_x, dir_y) = DIRS[i as usize];
 			new_dir.x += dir_x as f32;
 			new_dir.y += dir_y as f32;
 		}
@@ -116,31 +117,16 @@ impl Horse {
 	}
 }
 
-pub fn fuse_collisions(c1: Collision, c2: Collision) -> Collision {
-	let mut out = AutoBoolx8::ZERO;
-
-	out = out | AutoBoolx8::from(c1);
-	out = out | AutoBoolx8::from(c2);
-
-	out.0
-}
-
 const fn normal(num: i32) -> i32 {
 	(num as f32 * f32::consts::FRAC_1_SQRT_2) as i32
 }
 
-#[test]
-fn normal_test() {
-	assert_eq!(11, normal(16))
-}
+mod tests {
+	#[allow(unused)]
+	use super::*;
 
-#[test]
-fn fuse_collisions_test() {
-	let c1 = [false, true, true, true, false, false, false, false];
-	let c2 = [false, false, true, true, true, false, false, false];
-
-	assert_eq!(
-		fuse_collisions(c1, c2),
-		[false, true, true, true, true, false, false, false]
-	)
+	#[test]
+	fn normal_test() {
+		assert_eq!(11, normal(16))
+	}
 }
