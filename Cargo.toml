@@ -4,7 +4,15 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-macroquad = "0.4"
+macroquad = { version = "0.4", features = ["glam-serde"] }
+
+# audio
+kira = { version = "0.10", default-features = false, features = ["cpal", "mp3", "flac"] }
+
+# (de)serialization
+toml = "0.8"
+serde = { version = "1", features = ["derive"] }
+
+# utilities
 parking_lot = "0.12"
 simba = { version = "0.9", default-features = false }
-kira = { version = "0.10", default-features = false, features = ["cpal", "mp3", "flac"] }

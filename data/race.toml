@@ -1,0 +1,9 @@
+foreground = "./assets/arenatest1.png"
+background = "./assets/backgroundtest1.png"
+
+horses = [
+	["./data/gold.toml", [380, 380]],
+	["./data/olive.toml", [410, 410]],
+	["./data/peach.toml", [440, 440]],
+	["./data/purble.toml", [470, 470]]
+]

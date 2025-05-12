@@ -1,25 +1,16 @@
-use horse::Horse;
 use macroquad::prelude::*;
 
 mod audio;
+mod data;
 mod game;
 mod horse;
 
 #[macroquad::main("OpenHRT")]
 async fn main() {
-	let horses = [
-		Horse::new(vec2(380., 380.), "./assets/gold.png").await,
-		Horse::new(vec2(410., 410.), "./assets/olive.png").await,
-		Horse::new(vec2(440., 440.), "./assets/peach.png").await,
-		Horse::new(vec2(470., 470.), "./assets/purble.png").await,
-	];
-
-	let mut game = game::Game::new(
-		"./assets/arenatest1.png",
-		"./assets/backgroundtest1.png",
-		&horses,
-	)
-	.await;
+	let mut game = data::RaceData::load("./data/race.toml")
+		.set_seed()
+		.into_game()
+		.await;
 
 	loop {
 		game.update();
