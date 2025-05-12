@@ -8,9 +8,9 @@ mod horse;
 #[macroquad::main("OpenHRT")]
 async fn main() {
 	let horses = [
-		Horse::new(vec2(380., 380.), "./assets/purble.png").await,
-		Horse::new(vec2(410., 410.), "./assets/purble.png").await,
-		Horse::new(vec2(440., 440.), "./assets/purble.png").await,
+		Horse::new(vec2(380., 380.), "./assets/gold.png").await,
+		Horse::new(vec2(410., 410.), "./assets/olive.png").await,
+		Horse::new(vec2(440., 440.), "./assets/peach.png").await,
 		Horse::new(vec2(470., 470.), "./assets/purble.png").await,
 	];
 
