@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use macroquad::{math::Vec2, miniquad};
 use serde::Deserialize;
 
-use crate::{game::Game, horse::Horse};
+use crate::race::{Race, horse::Horse};
 
 #[derive(Deserialize)]
 pub struct RaceData {
@@ -38,14 +38,14 @@ impl RaceData {
 		self
 	}
 
-	pub async fn into_game(self) -> Game {
+	pub async fn into_race(self) -> Race {
 		let mut horses = vec![];
 		for (path, pos) in self.horses {
 			let horse: HorseData = toml::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
 			horses.push(horse.into_horse(pos).await);
 		}
 
-		Game::new(
+		Race::new(
 			&stringify(self.foreground),
 			&stringify(self.background),
 			&horses,

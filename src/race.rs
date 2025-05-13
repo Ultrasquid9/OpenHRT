@@ -1,14 +1,16 @@
 use macroquad::prelude::*;
 
-use crate::horse::{Collisions, Horse, NO_COLLISION};
+use horse::{Collisions, Horse, NO_COLLISION};
 
-pub struct Game {
+pub mod horse;
+
+pub struct Race {
 	foreground: Image,
 	background: Texture2D,
 	horses: Vec<Horse>,
 }
 
-impl Game {
+impl Race {
 	pub async fn new(foreground_path: &str, background_path: &str, horses: &[Horse]) -> Self {
 		let foreground = match load_image(foreground_path).await {
 			Ok(ok) => ok,

@@ -2,14 +2,13 @@ use macroquad::prelude::*;
 
 mod audio;
 mod data;
-mod game;
-mod horse;
+mod race;
 
 #[macroquad::main("OpenHRT")]
 async fn main() {
 	let mut game = data::RaceData::load("./data/race.toml")
 		.set_seed()
-		.into_game()
+		.into_race()
 		.await;
 
 	loop {
