@@ -4,14 +4,19 @@ use kira::{
 };
 use macroquad::prelude::*;
 
-use crate::audio::play_or_load;
+use crate::{audio::play_or_load, data::GateData};
 
 pub struct Startup {
 	handle: StaticSoundHandle,
 	countdown: Countdown,
-	gate_pos: Vec2,
-	gate_size: Vec2,
-	gate_texture: Texture2D,
+	gate: Gate,
+}
+
+struct Gate {
+	pos: Vec2,
+	size: Vec2,
+	scale: Vec2,
+	texture: Texture2D,
 }
 
 struct Countdown {
@@ -24,13 +29,11 @@ struct Countdown {
 }
 
 impl Startup {
-	pub async fn new() -> Self {
+	pub async fn new(img: &Image, gate: GateData) -> Self {
 		Self {
 			handle: play_or_load("../assets/audio/place-your-bets-in.flac"),
 			countdown: Countdown::new().await,
-			gate_pos: vec2(0., 0.),
-			gate_size: vec2(0., 0.),
-			gate_texture: Texture2D::from_image(&load_image("./assets/gate.png").await.unwrap()),
+			gate: Gate::new(img, gate).await,
 		}
 	}
 
@@ -39,22 +42,40 @@ impl Startup {
 	}
 
 	pub fn draw(&self) {
-		draw_texture_ex(
-			&self.gate_texture,
-			self.gate_pos.x,
-			self.gate_pos.y,
-			WHITE,
-			DrawTextureParams {
-				dest_size: Some(self.gate_size),
-				..Default::default()
-			},
-		);
-
+		self.gate.draw();
 		self.countdown.draw();
 	}
 
 	pub fn done(&self) -> bool {
 		matches!(self.handle.state(), PlaybackState::Stopped)
+	}
+}
+
+impl Gate {
+	async fn new(img: &Image, data: GateData) -> Self {
+		let (pos, size) = data.into_pos_size();
+
+		Self {
+			pos,
+			size,
+			scale: vec2(img.width as f32, img.height as f32),
+			texture: Texture2D::from_image(&load_image("./assets/gate.png").await.unwrap()),
+		}
+	}
+
+	fn draw(&self) {
+		let screen_scale = vec2(screen_width(), screen_height());
+
+		draw_texture_ex(
+			&self.texture,
+			self.pos.x / self.scale.x * screen_scale.x,
+			self.pos.y / self.scale.y * screen_scale.y,
+			WHITE,
+			DrawTextureParams {
+				dest_size: Some(self.size / self.scale * screen_scale),
+				..Default::default()
+			},
+		);
 	}
 }
 

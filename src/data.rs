@@ -12,6 +12,7 @@ pub struct RaceData {
 	seed: Option<u64>,
 	skip_intro: Option<bool>,
 	horses: Vec<(PathBuf, Vec2)>,
+	gate: GateData,
 }
 
 #[derive(Deserialize)]
@@ -19,10 +20,10 @@ pub struct HorseData {
 	sprite: PathBuf,
 }
 
-impl HorseData {
-	pub async fn into_horse(self, pos: Vec2) -> Horse {
-		Horse::new(pos, &stringify(self.sprite)).await
-	}
+#[derive(Deserialize)]
+pub struct GateData {
+	start: Vec2,
+	end: Vec2,
 }
 
 impl RaceData {
@@ -50,10 +51,23 @@ impl RaceData {
 			&stringify(self.foreground),
 			&stringify(self.background),
 			&horses,
+			self.gate,
 		)
 		.await;
 		race.skip_intro(self.skip_intro.unwrap_or(false));
 		race
+	}
+}
+
+impl HorseData {
+	pub async fn into_horse(self, pos: Vec2) -> Horse {
+		Horse::new(pos, &stringify(self.sprite)).await
+	}
+}
+
+impl GateData {
+	pub fn into_pos_size(self) -> (Vec2, Vec2) {
+		(self.start, self.end - self.start)
 	}
 }
 

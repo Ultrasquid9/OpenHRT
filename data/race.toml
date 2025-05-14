@@ -1,8 +1,6 @@
 foreground = "./assets/arenatest2.png"
 background = "./assets/backgroundtest2.png"
 
-skip_intro = true
-
 horses = [
 	["./data/magenta.toml", [250, 250]],
 	["./data/gold.toml", [300, 300]],
@@ -10,3 +8,7 @@ horses = [
 	["./data/peach.toml", [400, 400]],
 	["./data/purble.toml", [450, 450]]
 ]
+
+[gate]
+start = [600, 150]
+end = [700, 450]

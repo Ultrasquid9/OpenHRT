@@ -3,6 +3,8 @@ use macroquad::prelude::*;
 use horse::{Collisions, Horse, NO_COLLISION};
 use startup::Startup;
 
+use crate::data::GateData;
+
 pub mod horse;
 mod startup;
 
@@ -14,7 +16,7 @@ pub struct Race {
 }
 
 impl Race {
-	pub async fn new(foreground_path: &str, background_path: &str, horses: &[Horse]) -> Self {
+	pub async fn new(foreground_path: &str, background_path: &str, horses: &[Horse], gate: GateData) -> Self {
 		let foreground = match load_image(foreground_path).await {
 			Ok(ok) => ok,
 			Err(_) => todo!(),
@@ -28,7 +30,7 @@ impl Race {
 			foreground,
 			background: Texture2D::from_image(&background),
 			horses: horses.to_vec(),
-			startup: Some(Startup::new().await),
+			startup: Some(Startup::new(&background, gate).await),
 		}
 	}
 
