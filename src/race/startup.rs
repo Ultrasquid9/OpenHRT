@@ -15,7 +15,9 @@ struct Countdown {
 	pos: Vec2,
 	size: Vec2,
 	texture: Texture2D,
+	source: Rect,
 	direction: u8,
+	time: f32,
 }
 
 impl Startup {
@@ -62,17 +64,30 @@ impl Countdown {
 	];
 
 	async fn new() -> Self {
+		let img = load_image("./assets/countdown.png").await.unwrap();
+		let rect = Rect::new(0., 0., img.width as f32, (img.height / 12) as f32);
+
 		Self {
 			pos: vec2(screen_width() / 2., screen_height() / 2.),
-			size: vec2(screen_width() / 25., screen_height() / 10.),
-			texture: Texture2D::from_image(&load_image("./assets/gate.png").await.unwrap()),
-			direction: 0,
+			size: Vec2::ZERO,
+			texture: Texture2D::from_image(&img),
+			source: rect,
+			direction: rand::gen_range(0, 3),
+			time: 0.,
 		}
 	}
 
 	fn update(&mut self) {
+		self.source();
 		self.size();
 		self.bounce();
+	}
+
+	fn source(&mut self) {
+		self.time += get_frame_time();
+
+		let offset = ((self.time / 13. * 12.) - 1.2).floor().clamp(0., 12.);
+		self.source.y = self.source.h * offset;
 	}
 
 	fn bounce(&mut self) {
@@ -81,6 +96,7 @@ impl Countdown {
 			|| self.pos.x + self.size.x >= screen_width()
 			|| self.pos.y + self.size.y >= screen_height()
 		{
+			self.center();
 			self.direction += 1;
 			if self.direction >= 4 {
 				self.direction = 0;
@@ -88,11 +104,26 @@ impl Countdown {
 		}
 
 		let dir = Self::DIRS[self.direction as usize];
-		self.pos += dir * get_frame_time() * 4.;
+		self.pos += dir * get_frame_time() * ((screen_width() + screen_height()) / 300.);
 	}
 
 	fn size(&mut self) {
-		self.size = vec2(screen_width() / 4., screen_height() / 14.)
+		self.size = vec2(screen_width() / 4., screen_height() / 12.)
+	}
+
+	fn center(&mut self) {
+		while self.pos.x <= 0. {
+			self.pos.x += 1.;
+		}
+		while self.pos.y <= 0. {
+			self.pos.y += 1.;
+		}
+		while self.pos.x + self.size.x >= screen_width() {
+			self.pos.x -= 1.;
+		}
+		while self.pos.y + self.size.y >= screen_height() {
+			self.pos.y -= 1.;
+		}
 	}
 
 	fn draw(&self) {
@@ -103,6 +134,7 @@ impl Countdown {
 			WHITE,
 			DrawTextureParams {
 				dest_size: Some(self.size),
+				source: Some(self.source),
 				..Default::default()
 			},
 		);
