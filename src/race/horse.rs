@@ -95,7 +95,7 @@ impl Horse {
 
 	pub fn bounce(&mut self, collisions: Collisions) {
 		let mut new_dir = Vec2::ZERO;
-		
+
 		for i in 0..u8::BITS {
 			let bits: u8 = 1 << i;
 			if collisions & bits != bits {

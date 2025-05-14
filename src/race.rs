@@ -1,13 +1,16 @@
 use macroquad::prelude::*;
 
 use horse::{Collisions, Horse, NO_COLLISION};
+use startup::Startup;
 
 pub mod horse;
+mod startup;
 
 pub struct Race {
 	foreground: Image,
 	background: Texture2D,
 	horses: Vec<Horse>,
+	startup: Option<Startup>,
 }
 
 impl Race {
@@ -25,10 +28,21 @@ impl Race {
 			foreground,
 			background: Texture2D::from_image(&background),
 			horses: horses.to_vec(),
+			startup: Some(Startup::new().await),
 		}
 	}
 
 	pub fn update(&mut self) {
+		if let Some(startup) = &mut self.startup {
+			startup.update();
+
+			if startup.done() {
+				self.startup = None;
+			}
+
+			return;
+		}
+
 		let collisions = self
 			.horses
 			.iter()
@@ -47,7 +61,7 @@ impl Race {
 		}
 	}
 
-	pub fn draw(&mut self) {
+	pub fn draw(&self) {
 		render_texture_fullscreen(&self.background);
 		render_texture_fullscreen(&Texture2D::from_image(&self.foreground));
 
@@ -67,6 +81,10 @@ impl Race {
 					..Default::default()
 				},
 			);
+		}
+
+		if let Some(startup) = &self.startup {
+			startup.draw();
 		}
 	}
 }
