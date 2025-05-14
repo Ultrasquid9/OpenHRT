@@ -1,4 +1,7 @@
-use kira::sound::{PlaybackState, static_sound::StaticSoundHandle};
+use kira::{
+	Tween,
+	sound::{PlaybackState, static_sound::StaticSoundHandle},
+};
 use macroquad::prelude::*;
 
 use crate::audio::play_or_load;
@@ -138,5 +141,11 @@ impl Countdown {
 				..Default::default()
 			},
 		);
+	}
+}
+
+impl Drop for Startup {
+	fn drop(&mut self) {
+		self.handle.stop(Tween::default());
 	}
 }

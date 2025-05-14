@@ -8,7 +8,7 @@ pub type Collisions = u8;
 pub type Dirs = [(i32, i32); 8];
 
 pub const NO_COLLISION: Collisions = 0;
-pub const DIR_WIDTH: i32 = 22;
+pub const DIR_WIDTH: i32 = 36;
 
 #[rustfmt::skip]
 pub const DIRS: Dirs = [
@@ -46,7 +46,7 @@ impl Horse {
 	}
 
 	pub fn update(&mut self) {
-		self.pos += self.dir * self.speed;
+		self.pos += self.dir * self.speed * 2.;
 
 		if self.speed < 3.5 {
 			self.speed += 0.01;

@@ -10,6 +10,7 @@ pub struct RaceData {
 	foreground: PathBuf,
 	background: PathBuf,
 	seed: Option<u64>,
+	skip_intro: Option<bool>,
 	horses: Vec<(PathBuf, Vec2)>,
 }
 
@@ -45,12 +46,14 @@ impl RaceData {
 			horses.push(horse.into_horse(pos).await);
 		}
 
-		Race::new(
+		let mut race = Race::new(
 			&stringify(self.foreground),
 			&stringify(self.background),
 			&horses,
 		)
-		.await
+		.await;
+		race.skip_intro(self.skip_intro.unwrap_or(false));
+		race
 	}
 }
 

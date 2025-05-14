@@ -32,6 +32,12 @@ impl Race {
 		}
 	}
 
+	pub fn skip_intro(&mut self, skip: bool) {
+		if skip {
+			self.startup = None;
+		}
+	}
+
 	pub fn update(&mut self) {
 		if let Some(startup) = &mut self.startup {
 			startup.update();
@@ -65,7 +71,7 @@ impl Race {
 		render_texture_fullscreen(&self.background);
 		render_texture_fullscreen(&Texture2D::from_image(&self.foreground));
 
-		let horse_size = (screen_width() + screen_height()) / 56.;
+		let horse_size = (screen_width() + screen_height()) / 40.;
 
 		for horse in &self.horses {
 			let horse_pos_x = horse.pos.x / self.foreground.width() as f32 * screen_width();
