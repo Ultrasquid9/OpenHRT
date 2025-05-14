@@ -1,8 +1,10 @@
+use kira::sound::{static_sound::StaticSoundHandle, PlaybackState};
 use macroquad::prelude::*;
-use miniquad::date::now;
+
+use crate::audio::play_or_load;
 
 pub struct Startup {
-	start_time: f64,
+	handle: StaticSoundHandle,
 	countdown_pos: Vec2,
 	countdown_size: Vec2,
 	countdown_texture: Texture2D,
@@ -13,8 +15,8 @@ pub struct Startup {
 
 impl Startup {
 	pub async fn new() -> Self {
-		Self {
-			start_time: now(),
+		let x = Self {
+			handle: play_or_load("../assets/audio/place-your-bets-in.flac"),
 			countdown_pos: vec2(0., 0.),
 			countdown_size: vec2(0., 0.),
 			countdown_texture: Texture2D::from_image(
@@ -23,7 +25,9 @@ impl Startup {
 			gate_pos: vec2(0., 0.),
 			gate_size: vec2(0., 0.),
 			gate_texture: Texture2D::from_image(&load_image("./assets/gate.png").await.unwrap()),
-		}
+		};
+		println!("done");
+		x
 	}
 
 	pub fn update(&mut self) {}
@@ -53,6 +57,6 @@ impl Startup {
 	}
 
 	pub fn done(&self) -> bool {
-		now() > self.start_time + 10.
+		matches!(self.handle.state(), PlaybackState::Stopped)
 	}
 }

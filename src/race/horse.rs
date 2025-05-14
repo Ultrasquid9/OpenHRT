@@ -2,7 +2,7 @@ use core::f32;
 
 use macroquad::prelude::*;
 
-use crate::audio::play_bounce;
+use crate::audio::play_or_load;
 
 pub type Collisions = u8;
 pub type Dirs = [(i32, i32); 8];
@@ -109,7 +109,7 @@ impl Horse {
 		self.dir = new_dir.normalize() * -1.;
 		self.speed = rand::gen_range(1., 2.);
 
-		play_bounce();
+		play_or_load("../assets/audio/bounce.flac");
 	}
 }
 
