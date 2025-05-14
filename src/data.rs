@@ -19,8 +19,8 @@ pub struct HorseData {
 }
 
 impl HorseData {
-	pub async fn into_horse(&self, pos: Vec2) -> Horse {
-		Horse::new(pos, &stringify(self.sprite.clone())).await
+	pub async fn into_horse(self, pos: Vec2) -> Horse {
+		Horse::new(pos, &stringify(self.sprite)).await
 	}
 }
 

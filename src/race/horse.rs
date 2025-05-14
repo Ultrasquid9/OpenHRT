@@ -56,9 +56,7 @@ impl Horse {
 	pub fn collision_wall(&self, image: &Image) -> Collisions {
 		let mut collisions = NO_COLLISION;
 
-		for i in 0..DIRS.len() {
-			let (dir_x, dir_y) = DIRS[i];
-
+		for (i, (dir_x, dir_y)) in DIRS.iter().enumerate() {
 			let x = (self.pos.x as i32 + dir_x) as u32;
 			let y = (self.pos.y as i32 + dir_y) as u32;
 
@@ -73,9 +71,7 @@ impl Horse {
 	pub fn collision_honses(&self, honses: &[Horse]) -> Collisions {
 		let mut collisions = NO_COLLISION;
 
-		for i in 0..DIRS.len() {
-			let (dir_x, dir_y) = DIRS[i];
-
+		for (i, (dir_x, dir_y)) in DIRS.iter().enumerate() {
 			let pos = vec2(
 				(self.pos.x as i32 + dir_x) as f32,
 				(self.pos.y as i32 + dir_y) as f32,
@@ -97,8 +93,8 @@ impl Horse {
 		let mut new_dir = Vec2::ZERO;
 
 		for i in 0..u8::BITS {
-			let bits: u8 = 1 << i;
-			if collisions & bits != bits {
+			let bit = 1 << i;
+			if collisions & bit != bit {
 				continue;
 			}
 

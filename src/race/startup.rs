@@ -17,7 +17,9 @@ impl Startup {
 			start_time: now(),
 			countdown_pos: vec2(0., 0.),
 			countdown_size: vec2(0., 0.),
-			countdown_texture: Texture2D::from_image(&load_image("./assets/gate.png").await.unwrap()),
+			countdown_texture: Texture2D::from_image(
+				&load_image("./assets/gate.png").await.unwrap(),
+			),
 			gate_pos: vec2(0., 0.),
 			gate_size: vec2(0., 0.),
 			gate_texture: Texture2D::from_image(&load_image("./assets/gate.png").await.unwrap()),
@@ -28,25 +30,25 @@ impl Startup {
 
 	pub fn draw(&self) {
 		draw_texture_ex(
-			&self.gate_texture, 
-			self.gate_pos.x, 
-			self.gate_pos.y, 
-			WHITE, 
-			DrawTextureParams { 
-				dest_size: Some(self.gate_size), 
+			&self.gate_texture,
+			self.gate_pos.x,
+			self.gate_pos.y,
+			WHITE,
+			DrawTextureParams {
+				dest_size: Some(self.gate_size),
 				..Default::default()
-			}
+			},
 		);
 
 		draw_texture_ex(
-			&self.countdown_texture, 
-			self.countdown_pos.x, 
-			self.countdown_pos.y, 
-			WHITE, 
-			DrawTextureParams { 
-				dest_size: Some(self.countdown_size), 
+			&self.countdown_texture,
+			self.countdown_pos.x,
+			self.countdown_pos.y,
+			WHITE,
+			DrawTextureParams {
+				dest_size: Some(self.countdown_size),
 				..Default::default()
-			}
+			},
 		);
 	}
 
