@@ -4,7 +4,12 @@ use kira::{
 };
 use macroquad::prelude::*;
 
-use crate::{audio::play_or_load, data::GateData, utils::load_img_blocking};
+use crate::{
+	audio::play_or_load,
+	data::GateData,
+	dirs,
+	utils::{Dirs, load_img_blocking},
+};
 
 pub struct Startup {
 	handle: StaticSoundHandle,
@@ -80,11 +85,12 @@ impl Gate {
 }
 
 impl Countdown {
-	const DIRS: [Vec2; 4] = [
-		vec2(24., 24.),
-		vec2(-24., 24.),
-		vec2(-24., -24.),
-		vec2(24., -24.),
+	#[rustfmt::skip]
+	const DIRS: Dirs<4> = dirs![
+		( 24.,  24.),
+		(-24.,  24.),
+		(-24., -24.),
+		( 24., -24.),
 	];
 
 	async fn new() -> Self {

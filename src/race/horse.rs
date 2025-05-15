@@ -2,24 +2,27 @@ use core::f32;
 
 use macroquad::prelude::*;
 
-use crate::{audio::play_or_load, utils::load_img};
+use crate::{
+	audio::play_or_load,
+	dirs,
+	utils::{Dirs, load_img},
+};
 
 pub type Collisions = u8;
-pub type Dirs = [(i32, i32); 8];
 
 pub const NO_COLLISION: Collisions = 0;
-pub const DIR_WIDTH: i32 = 36;
+pub const DIR_WIDTH: f32 = 36.;
 
 #[rustfmt::skip]
-pub const DIRS: Dirs = [
+pub const DIRS: Dirs<8> = dirs![
 	( normal(DIR_WIDTH),-normal(DIR_WIDTH)),
 	(-normal(DIR_WIDTH), normal(DIR_WIDTH)),
 	( normal(DIR_WIDTH), normal(DIR_WIDTH)),
 	(-normal(DIR_WIDTH),-normal(DIR_WIDTH)),
-	( 0,-DIR_WIDTH),
-	( 0, DIR_WIDTH),
-	(-DIR_WIDTH, 0),
-	( DIR_WIDTH, 0),
+	( 0.,-DIR_WIDTH),
+	( 0., DIR_WIDTH),
+	(-DIR_WIDTH, 0.),
+	( DIR_WIDTH, 0.),
 ];
 
 #[derive(Clone, PartialEq)]
@@ -53,11 +56,11 @@ impl Horse {
 	pub fn collision_wall(&self, image: &Image) -> Collisions {
 		let mut collisions = NO_COLLISION;
 
-		for (i, (dir_x, dir_y)) in DIRS.iter().enumerate() {
-			let x = (self.pos.x as i32 + dir_x) as u32;
-			let y = (self.pos.y as i32 + dir_y) as u32;
+		for (i, Vec2 { x, y }) in DIRS.iter().enumerate() {
+			let x = (self.pos.x + x) as u32;
+			let y = (self.pos.y + y) as u32;
 
-			if matches!(image.get_pixel(x, y), pixel if pixel.a > 0.75) {
+			if image.get_pixel(x, y).a > 0.75 {
 				collisions |= 1 << i;
 			}
 		}
@@ -68,17 +71,14 @@ impl Horse {
 	pub fn collision_honses(&self, honses: &[Horse]) -> Collisions {
 		let mut collisions = NO_COLLISION;
 
-		for (i, (dir_x, dir_y)) in DIRS.iter().enumerate() {
-			let pos = vec2(
-				(self.pos.x as i32 + dir_x) as f32,
-				(self.pos.y as i32 + dir_y) as f32,
-			);
+		for (i, dir) in DIRS.iter().enumerate() {
+			let pos = self.pos + *dir;
 
 			for honse in honses {
 				if honse == self {
 					continue;
 				}
-				let bit = (honse.pos.distance(pos) <= DIR_WIDTH as f32) as u8;
+				let bit = (honse.pos.distance(pos) <= DIR_WIDTH) as u8;
 				collisions |= bit << i;
 			}
 		}
@@ -95,9 +95,7 @@ impl Horse {
 				continue;
 			}
 
-			let (dir_x, dir_y) = DIRS[i as usize];
-			new_dir.x += dir_x as f32;
-			new_dir.y += dir_y as f32;
+			new_dir = DIRS[i as usize];
 		}
 
 		new_dir.x += rand::gen_range(-10., 10.);
@@ -110,8 +108,8 @@ impl Horse {
 	}
 }
 
-const fn normal(num: i32) -> i32 {
-	(num as f32 * f32::consts::FRAC_1_SQRT_2) as i32
+const fn normal(num: f32) -> f32 {
+	num * f32::consts::FRAC_1_SQRT_2
 }
 
 mod tests {
@@ -120,6 +118,6 @@ mod tests {
 
 	#[test]
 	fn normal_test() {
-		assert_eq!(11, normal(16))
+		assert_eq!(11., normal(16.).round())
 	}
 }

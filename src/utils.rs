@@ -5,6 +5,8 @@ use macroquad::prelude::*;
 use tracing::Level;
 use tracing_subscriber::FmtSubscriber;
 
+pub type Dirs<const AMOUNT: usize> = [Vec2; AMOUNT];
+
 static DEBUG_IMG: LazyLock<Image> = LazyLock::new(|| {
 	Image {
 		width: 3,
@@ -43,6 +45,11 @@ pub fn init_log() {
 		.with_max_level(Level::INFO)
 		.finish();
 
-	tracing::subscriber::set_global_default(subscriber)
-		.expect("Should be able to set global subscriber!");
+	tracing::subscriber::set_global_default(subscriber).unwrap_or_else(|_| {
+		tracing::error!("Tried to set global default more than once");
+	})
 }
+
+/// Creates an array of [Vec2] from an array of tuples
+#[macro_export]
+macro_rules! dirs { ( $( ($x:expr, $y:expr) ),* $(,)? ) => { [ $( vec2($x, $y), )* ] } }
