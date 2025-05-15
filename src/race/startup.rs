@@ -4,7 +4,7 @@ use kira::{
 };
 use macroquad::prelude::*;
 
-use crate::{audio::play_or_load, data::GateData, utils::load_img};
+use crate::{audio::play_or_load, data::GateData, utils::load_img_blocking};
 
 pub struct Startup {
 	handle: StaticSoundHandle,
@@ -59,7 +59,7 @@ impl Gate {
 			pos,
 			size,
 			scale: vec2(img.width as f32, img.height as f32),
-			texture: Texture2D::from_image(&load_img("./assets/gate.png").await),
+			texture: Texture2D::from_image(&load_img_blocking("./assets/gate.png".into()).await),
 		}
 	}
 
@@ -88,7 +88,7 @@ impl Countdown {
 	];
 
 	async fn new() -> Self {
-		let img = load_img("./assets/countdown.png").await;
+		let img = load_img_blocking("./assets/countdown.png".into()).await;
 		let rect = Rect::new(0., 0., img.width as f32, (img.height / 12) as f32);
 
 		Self {

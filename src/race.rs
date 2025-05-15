@@ -3,7 +3,7 @@ use macroquad::prelude::*;
 use horse::{Collisions, Horse, NO_COLLISION};
 use startup::Startup;
 
-use crate::{data::GateData, utils::load_img};
+use crate::{data::GateData, utils::load_img_blocking};
 
 pub mod horse;
 mod startup;
@@ -16,9 +16,14 @@ pub struct Race {
 }
 
 impl Race {
-	pub async fn new(foreground_path: &str, background_path: &str, horses: &[Horse], gate: GateData) -> Self {
-		let foreground = load_img(foreground_path).await;
-		let background = load_img(background_path).await;
+	pub async fn new(
+		foreground_path: &str,
+		background_path: &str,
+		horses: &[Horse],
+		gate: GateData,
+	) -> Self {
+		let foreground = load_img_blocking(foreground_path.into()).await;
+		let background = load_img_blocking(background_path.into()).await;
 
 		Self {
 			foreground: foreground.clone(),

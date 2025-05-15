@@ -22,3 +22,10 @@ pub async fn load_img(path: &str) -> Image {
 		Err(_) => DEBUG_IMG.clone(),
 	}
 }
+
+pub async fn load_img_blocking(path: String) -> Image {
+	match tokio::task::spawn_blocking(async move || load_img(&path).await).await {
+		Ok(ok) => ok.await,
+		Err(_) => DEBUG_IMG.clone(),
+	}
+}
