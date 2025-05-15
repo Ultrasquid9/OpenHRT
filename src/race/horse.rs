@@ -8,6 +8,8 @@ use crate::{
 	utils::{Dirs, load_img},
 };
 
+use super::victory::Carrots;
+
 pub type Collisions = u8;
 
 pub const NO_COLLISION: Collisions = 0;
@@ -84,6 +86,15 @@ impl Horse {
 		}
 
 		collisions
+	}
+
+	pub fn collision_carrots(&self, carrots: &Carrots) -> bool {
+		let mut collision = false;
+		for dir in DIRS {
+			let pos = self.pos + dir;
+			collision |= carrots.pos.distance(pos) <= DIR_WIDTH;
+		}
+		collision
 	}
 
 	pub fn bounce(&mut self, collisions: Collisions) {

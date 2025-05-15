@@ -14,6 +14,7 @@ mod startup;
 pub mod victory;
 
 pub struct Race {
+	time: f32,
 	foreground: Image,
 	background: Texture2D,
 	horses: Vec<Horse>,
@@ -33,6 +34,7 @@ impl Race {
 		let background = load_img_blocking(background_path.into()).await;
 
 		Self {
+			time: 0.,
 			foreground: foreground.clone(),
 			background: Texture2D::from_image(&background),
 			horses: horses.to_vec(),
@@ -56,6 +58,8 @@ impl Race {
 			}
 
 			return;
+		} else {
+			self.time += get_frame_time();
 		}
 
 		let collisions = self
@@ -74,17 +78,30 @@ impl Race {
 				honse.bounce(*collision);
 			}
 		}
+
+		for horse in &self.horses {
+			if horse.collision_carrots(&self.carrots) {
+				// TODO: Do Something Here
+			}
+		}
 	}
 
 	pub fn draw(&self) {
 		render_texture_fullscreen(&self.background);
 		render_texture_fullscreen(&Texture2D::from_image(&self.foreground));
 
+		self.little_guy(self.carrots.pos, &self.carrots.texture);
 		for horse in &self.horses {
 			self.little_guy(horse.pos, &horse.texture);
 		}
 
-		self.little_guy(self.carrots.pos, &self.carrots.texture);
+		draw_text(
+			&parse_time(self.time),
+			screen_width() * 0.85,
+			screen_height() * 0.95,
+			(screen_width() + screen_height()) / 70.,
+			WHITE,
+		);
 
 		if let Some(startup) = &self.startup {
 			startup.draw();
@@ -122,4 +139,21 @@ fn render_texture_fullscreen(texture: &Texture2D) {
 			..Default::default()
 		},
 	);
+}
+
+fn parse_time(mut time: f32) -> String {
+	let mut minutes = 0u8;
+	while time >= 60. {
+		minutes += 1;
+		time -= 60.;
+	}
+
+	let mut seconds = format!("{:.2}", time);
+	if time < 10. {
+		seconds = "0".to_string() + &seconds;
+	}
+
+	let start = if minutes > 10 { "" } else { "0" };
+
+	format!("{start}{minutes}:{seconds}")
 }
