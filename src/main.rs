@@ -3,6 +3,7 @@ use macroquad::prelude::*;
 mod audio;
 mod data;
 mod race;
+mod utils;
 
 #[macroquad::main("OpenHRT")]
 async fn main() {

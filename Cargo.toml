@@ -16,3 +16,4 @@ serde = { version = "1", features = ["derive"] }
 # utilities
 hashbrown = "0.15"
 parking_lot = "0.12"
+hex-literal = "1"

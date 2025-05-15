@@ -2,7 +2,7 @@ use core::f32;
 
 use macroquad::prelude::*;
 
-use crate::audio::play_or_load;
+use crate::{audio::play_or_load, utils::load_img};
 
 pub type Collisions = u8;
 pub type Dirs = [(i32, i32); 8];
@@ -32,10 +32,7 @@ pub struct Horse {
 
 impl Horse {
 	pub async fn new(pos: Vec2, img_path: &str) -> Self {
-		let image = match load_image(img_path).await {
-			Ok(ok) => ok,
-			Err(_) => todo!(),
-		};
+		let image = load_img(img_path).await;
 
 		Self {
 			pos,

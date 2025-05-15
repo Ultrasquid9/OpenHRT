@@ -3,18 +3,17 @@ use parking_lot::RwLock;
 use std::sync::LazyLock;
 
 use kira::{
-	AudioManager, AudioManagerSettings, DefaultBackend,
+	AudioManager, AudioManagerSettings,
 	sound::static_sound::{StaticSoundData, StaticSoundHandle},
 };
 
 // TODO: Less unwrap
 
 type Global<T> = LazyLock<RwLock<T>>;
-type AMan = AudioManager<DefaultBackend>;
-type ADat = HashMap<String, StaticSoundData>;
+type AudioCache = HashMap<String, StaticSoundData>;
 
-static MANAGER: Global<AMan> = LazyLock::new(manager);
-static AUDIO: Global<ADat> = LazyLock::new(audio);
+static MANAGER: Global<AudioManager> = manager();
+static AUDIO: Global<AudioCache> = audio();
 
 pub fn play_or_load(key: &str) -> StaticSoundHandle {
 	let mut writer = AUDIO.write();
@@ -35,10 +34,10 @@ pub fn play_or_load(key: &str) -> StaticSoundHandle {
 		.expect("Should be able to play audio!")
 }
 
-fn manager() -> RwLock<AMan> {
-	RwLock::new(AudioManager::new(AudioManagerSettings::default()).unwrap())
+const fn manager() -> Global<AudioManager> {
+	LazyLock::new(|| RwLock::new(AudioManager::new(AudioManagerSettings::default()).unwrap()))
 }
 
-fn audio() -> RwLock<ADat> {
-	RwLock::new(HashMap::new())
+const fn audio() -> Global<AudioCache> {
+	LazyLock::new(|| RwLock::new(HashMap::new()))
 }
