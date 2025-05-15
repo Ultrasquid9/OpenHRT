@@ -2,6 +2,8 @@ use std::sync::LazyLock;
 
 use hex_literal::hex;
 use macroquad::prelude::*;
+use tracing::Level;
+use tracing_subscriber::FmtSubscriber;
 
 static DEBUG_IMG: LazyLock<Image> = LazyLock::new(|| {
 	Image {
@@ -19,13 +21,28 @@ static DEBUG_IMG: LazyLock<Image> = LazyLock::new(|| {
 pub async fn load_img(path: &str) -> Image {
 	match load_image(path).await {
 		Ok(ok) => ok,
-		Err(_) => DEBUG_IMG.clone(),
+		Err(e) => {
+			tracing::warn!("{e}");
+			DEBUG_IMG.clone()
+		}
 	}
 }
 
 pub async fn load_img_blocking(path: String) -> Image {
 	match tokio::task::spawn_blocking(async move || load_img(&path).await).await {
 		Ok(ok) => ok.await,
-		Err(_) => DEBUG_IMG.clone(),
+		Err(e) => {
+			tracing::warn!("{e}");
+			DEBUG_IMG.clone()
+		}
 	}
+}
+
+pub fn init_log() {
+	let subscriber = FmtSubscriber::builder()
+		.with_max_level(Level::INFO)
+		.finish();
+
+	tracing::subscriber::set_global_default(subscriber)
+		.expect("Should be able to set global subscriber!");
 }

@@ -7,6 +7,8 @@ mod utils;
 
 #[macroquad::main("OpenHRT")]
 async fn main() {
+	utils::init_log();
+
 	let mut race = race();
 
 	loop {
@@ -18,7 +20,11 @@ async fn main() {
 }
 
 fn race() -> race::Race {
-	let runtime = tokio::runtime::Runtime::new().unwrap();
+	let runtime = tokio::runtime::Runtime::new().unwrap_or_else(|e| {
+		tracing::error!("Could not create runtime: {e}");
+		panic!()
+	});
+
 	runtime.block_on(async {
 		data::RaceData::load("./data/race.toml")
 			.set_seed()

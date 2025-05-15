@@ -1,7 +1,8 @@
 use std::path::{Path, PathBuf};
 
 use macroquad::{math::Vec2, miniquad};
-use serde::Deserialize;
+use serde::{Deserialize, de::DeserializeOwned};
+use tracing::error;
 
 use crate::race::{Race, horse::Horse};
 
@@ -27,8 +28,8 @@ pub struct GateData {
 }
 
 impl RaceData {
-	pub fn load<Dir: AsRef<Path>>(path: Dir) -> Self {
-		toml::from_str(&std::fs::read_to_string(path).unwrap()).unwrap()
+	pub fn load(path: impl AsRef<Path>) -> Self {
+		read(path)
 	}
 
 	pub fn set_seed(self) -> Self {
@@ -43,7 +44,7 @@ impl RaceData {
 	pub async fn into_race(self) -> Race {
 		let mut horses = vec![];
 		for (path, pos) in self.horses {
-			let horse: HorseData = toml::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
+			let horse = read::<HorseData>(path);
 			horses.push(horse.into_horse(pos).await);
 		}
 
@@ -59,9 +60,30 @@ impl RaceData {
 	}
 }
 
+impl Default for RaceData {
+	fn default() -> Self {
+		Self {
+			foreground: PathBuf::new(),
+			background: PathBuf::new(),
+			seed: None,
+			skip_intro: None,
+			horses: vec![],
+			gate: GateData::default(),
+		}
+	}
+}
+
 impl HorseData {
 	pub async fn into_horse(self, pos: Vec2) -> Horse {
 		Horse::new(pos, &stringify(self.sprite)).await
+	}
+}
+
+impl Default for HorseData {
+	fn default() -> Self {
+		Self {
+			sprite: PathBuf::new(),
+		}
 	}
 }
 
@@ -71,6 +93,42 @@ impl GateData {
 	}
 }
 
+impl Default for GateData {
+	fn default() -> Self {
+		Self {
+			start: Vec2::ZERO,
+			end: Vec2::ZERO,
+		}
+	}
+}
+
+fn read<Out>(path: impl AsRef<Path>) -> Out
+where
+	Out: DeserializeOwned + Default,
+{
+	let str = match std::fs::read_to_string(path) {
+		Ok(ok) => ok,
+		Err(e) => {
+			tracing::error!("{e}");
+			return Out::default();
+		}
+	};
+
+	match toml::from_str(&str) {
+		Ok(ok) => ok,
+		Err(e) => {
+			tracing::error!("{e}");
+			Out::default()
+		}
+	}
+}
+
 fn stringify(pth: PathBuf) -> String {
-	pth.as_os_str().to_str().unwrap().into()
+	match pth.as_os_str().to_str() {
+		Some(str) => str.into(),
+		None => {
+			error!("{:?} is not valid unicode!", pth);
+			String::new()
+		}
+	}
 }
