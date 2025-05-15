@@ -59,9 +59,9 @@ impl RaceData {
 		}
 
 		let mut race = Race::new(
-			&stringify(self.foreground),
-			&stringify(self.background),
-			&horses,
+			stringify(self.foreground),
+			stringify(self.background),
+			horses,
 			self.gate,
 			self.carrots,
 		)
@@ -87,7 +87,7 @@ impl Default for RaceData {
 
 impl HorseData {
 	pub async fn into_horse(self, pos: Vec2) -> Horse {
-		Horse::new(pos, &stringify(self.sprite)).await
+		Horse::new(pos, stringify(self.sprite)).await
 	}
 }
 
@@ -116,7 +116,7 @@ impl Default for GateData {
 
 impl CarrotData {
 	pub async fn into_carrots(self) -> Carrots {
-		Carrots::new(self.pos, &load_img(&stringify(self.sprite)).await)
+		Carrots::new(self.pos, &load_img(stringify(self.sprite)).await)
 	}
 }
 

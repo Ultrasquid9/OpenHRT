@@ -24,20 +24,22 @@ pub struct Race {
 
 impl Race {
 	pub async fn new(
-		foreground_path: &str,
-		background_path: &str,
-		horses: &[Horse],
+		foreground_path: String,
+		background_path: String,
+		horses: Vec<Horse>,
 		gate: GateData,
 		carrots: CarrotData,
 	) -> Self {
-		let foreground = load_img_blocking(foreground_path.into()).await;
-		let background = load_img_blocking(background_path.into()).await;
+		let (foreground, background) = tokio::join!(
+			load_img_blocking(foreground_path),
+			load_img_blocking(background_path),
+		);
 
 		Self {
 			time: 0.,
 			foreground: foreground.clone(),
 			background: Texture2D::from_image(&background),
-			horses: horses.to_vec(),
+			horses,
 			startup: Some(Startup::new(&background, gate).await),
 			carrots: carrots.into_carrots().await,
 		}

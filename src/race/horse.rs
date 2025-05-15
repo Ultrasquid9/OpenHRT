@@ -36,7 +36,7 @@ pub struct Horse {
 }
 
 impl Horse {
-	pub async fn new(pos: Vec2, img_path: &str) -> Self {
+	pub async fn new(pos: Vec2, img_path: String) -> Self {
 		let image = load_img(img_path).await;
 
 		Self {

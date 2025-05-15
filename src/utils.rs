@@ -20,18 +20,23 @@ static DEBUG_IMG: LazyLock<Image> = LazyLock::new(|| {
 	}
 });
 
-pub async fn load_img(path: &str) -> Image {
-	match load_image(path).await {
-		Ok(ok) => ok,
+pub async fn load_img(path: String) -> Image {
+	match load_image(&path).await {
+		Ok(ok) => {
+			tracing::info!("Image \"{path}\" loaded!");
+			ok
+		}
 		Err(e) => {
-			tracing::warn!("{e}");
+			tracing::warn!("Image \"{path}\" failed to load: {e}");
 			DEBUG_IMG.clone()
 		}
 	}
 }
 
 pub async fn load_img_blocking(path: String) -> Image {
-	match tokio::task::spawn_blocking(async move || load_img(&path).await).await {
+	// Because Macroquad panics when multithreaded, using `spawn` does not work. 
+	// `spawn_blocking` must be used instead. 
+	match tokio::task::spawn_blocking(async move || load_img(path).await).await {
 		Ok(ok) => ok.await,
 		Err(e) => {
 			tracing::warn!("{e}");
