@@ -4,7 +4,10 @@ use macroquad::{math::Vec2, miniquad};
 use serde::{Deserialize, de::DeserializeOwned};
 use tracing::error;
 
-use crate::race::{Race, horse::Horse};
+use crate::{
+	race::{Race, horse::Horse, victory::Carrots},
+	utils::load_img,
+};
 
 #[derive(Deserialize)]
 pub struct RaceData {
@@ -12,8 +15,9 @@ pub struct RaceData {
 	background: PathBuf,
 	seed: Option<u64>,
 	skip_intro: Option<bool>,
-	horses: Vec<(PathBuf, Vec2)>,
+	horses: Vec<(Vec2, PathBuf)>,
 	gate: GateData,
+	carrots: CarrotData,
 }
 
 #[derive(Deserialize)]
@@ -25,6 +29,12 @@ pub struct HorseData {
 pub struct GateData {
 	start: Vec2,
 	end: Vec2,
+}
+
+#[derive(Deserialize)]
+pub struct CarrotData {
+	pos: Vec2,
+	sprite: PathBuf,
 }
 
 impl RaceData {
@@ -43,7 +53,7 @@ impl RaceData {
 
 	pub async fn into_race(self) -> Race {
 		let mut horses = vec![];
-		for (path, pos) in self.horses {
+		for (pos, path) in self.horses {
 			let horse = read::<HorseData>(path);
 			horses.push(horse.into_horse(pos).await);
 		}
@@ -53,6 +63,7 @@ impl RaceData {
 			&stringify(self.background),
 			&horses,
 			self.gate,
+			self.carrots,
 		)
 		.await;
 		race.skip_intro(self.skip_intro.unwrap_or(false));
@@ -69,6 +80,7 @@ impl Default for RaceData {
 			skip_intro: None,
 			horses: vec![],
 			gate: GateData::default(),
+			carrots: CarrotData::default(),
 		}
 	}
 }
@@ -98,6 +110,21 @@ impl Default for GateData {
 		Self {
 			start: Vec2::ZERO,
 			end: Vec2::ZERO,
+		}
+	}
+}
+
+impl CarrotData {
+	pub async fn into_carrots(self) -> Carrots {
+		Carrots::new(self.pos, &load_img(&stringify(self.sprite)).await)
+	}
+}
+
+impl Default for CarrotData {
+	fn default() -> Self {
+		Self {
+			pos: Vec2::ZERO,
+			sprite: PathBuf::new(),
 		}
 	}
 }

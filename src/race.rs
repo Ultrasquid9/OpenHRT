@@ -2,16 +2,22 @@ use macroquad::prelude::*;
 
 use horse::{Collisions, Horse, NO_COLLISION};
 use startup::Startup;
+use victory::Carrots;
 
-use crate::{data::GateData, utils::load_img_blocking};
+use crate::{
+	data::{CarrotData, GateData},
+	utils::load_img_blocking,
+};
 
 pub mod horse;
 mod startup;
+pub mod victory;
 
 pub struct Race {
 	foreground: Image,
 	background: Texture2D,
 	horses: Vec<Horse>,
+	carrots: Carrots,
 	startup: Option<Startup>,
 }
 
@@ -21,6 +27,7 @@ impl Race {
 		background_path: &str,
 		horses: &[Horse],
 		gate: GateData,
+		carrots: CarrotData,
 	) -> Self {
 		let foreground = load_img_blocking(foreground_path.into()).await;
 		let background = load_img_blocking(background_path.into()).await;
@@ -30,6 +37,7 @@ impl Race {
 			background: Texture2D::from_image(&background),
 			horses: horses.to_vec(),
 			startup: Some(Startup::new(&background, gate).await),
+			carrots: carrots.into_carrots().await,
 		}
 	}
 
@@ -72,27 +80,34 @@ impl Race {
 		render_texture_fullscreen(&self.background);
 		render_texture_fullscreen(&Texture2D::from_image(&self.foreground));
 
-		let horse_size = (screen_width() + screen_height()) / 40.;
-
 		for horse in &self.horses {
-			let horse_pos_x = horse.pos.x / self.foreground.width() as f32 * screen_width();
-			let horse_pos_y = horse.pos.y / self.foreground.height() as f32 * screen_height();
-
-			draw_texture_ex(
-				&horse.texture,
-				horse_pos_x - (horse_size / 2.),
-				horse_pos_y - (horse_size / 2.),
-				WHITE,
-				DrawTextureParams {
-					dest_size: Some(vec2(horse_size, horse_size)),
-					..Default::default()
-				},
-			);
+			self.little_guy(horse.pos, &horse.texture);
 		}
+
+		self.little_guy(self.carrots.pos, &self.carrots.texture);
 
 		if let Some(startup) = &self.startup {
 			startup.draw();
 		}
+	}
+
+	fn little_guy(&self, pos: Vec2, texture: &Texture2D) {
+		let size = (screen_width() + screen_height()) / 40.;
+		let params = DrawTextureParams {
+			dest_size: Some(vec2(size, size)),
+			..Default::default()
+		};
+
+		let pos_x = pos.x / self.foreground.width() as f32 * screen_width();
+		let pos_y = pos.y / self.foreground.height() as f32 * screen_height();
+
+		draw_texture_ex(
+			texture,
+			pos_x - (size / 2.),
+			pos_y - (size / 2.),
+			WHITE,
+			params,
+		);
 	}
 }
 
