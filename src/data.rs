@@ -10,7 +10,7 @@ use crate::{
 		horse::Horse,
 		victory::{Carrots, Victory},
 	},
-	utils::load_img,
+	utils::load_img_blocking,
 };
 
 #[derive(Deserialize, Default)]
@@ -67,12 +67,12 @@ impl RaceData {
 		let mut horses = vec![];
 		for (pos, path) in self.horses {
 			let horse = read::<HorseData>(path);
-			horses.push(horse.into_horse(pos).await);
+			horses.push(horse.into_horse(pos));
 		}
 
 		let mut race = Race::new(
-			stringify(self.foreground),
-			stringify(self.background),
+			stringify(&self.foreground),
+			stringify(&self.background),
 			horses,
 			self.gate,
 			self.carrots,
@@ -84,8 +84,8 @@ impl RaceData {
 }
 
 impl HorseData {
-	pub async fn into_horse(self, pos: Vec2) -> Horse {
-		Horse::new(pos, stringify(self.sprite), self.win_data).await
+	pub fn into_horse(self, pos: Vec2) -> Horse {
+		Horse::new(pos, &stringify(&self.sprite), self.win_data)
 	}
 }
 
@@ -96,14 +96,14 @@ impl GateData {
 }
 
 impl CarrotData {
-	pub async fn into_carrots(self) -> Carrots {
-		Carrots::new(self.pos, &load_img(stringify(self.sprite)).await)
+	pub fn into_carrots(self) -> Carrots {
+		Carrots::new(self.pos, &load_img_blocking(&stringify(&self.sprite)))
 	}
 }
 
 impl WinData {
-	pub async fn into_victory(self) -> Victory {
-		Victory::new(self.name, stringify(self.screen), stringify(self.music)).await
+	pub fn into_victory(self) -> Victory {
+		Victory::new(self.name, stringify(&self.screen), &stringify(&self.music))
 	}
 }
 
@@ -128,12 +128,11 @@ where
 	}
 }
 
-fn stringify(pth: PathBuf) -> String {
-	match pth.as_os_str().to_str() {
-		Some(str) => str.into(),
-		None => {
-			error!("{:?} is not valid unicode!", pth);
-			String::new()
-		}
+fn stringify(pth: &PathBuf) -> String {
+	if let Some(str) = pth.as_os_str().to_str() {
+		str.into()
+	} else {
+		error!("{:?} is not valid unicode!", pth);
+		String::new()
 	}
 }

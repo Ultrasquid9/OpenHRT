@@ -1,3 +1,10 @@
+#![warn(clippy::pedantic)]
+#![allow(clippy::cast_lossless)]
+#![allow(clippy::cast_precision_loss)]
+#![allow(clippy::cast_sign_loss)]
+#![allow(clippy::cast_possible_truncation)]
+#![allow(clippy::semicolon_if_nothing_returned)]
+
 use macroquad::prelude::*;
 
 mod audio;
@@ -13,7 +20,7 @@ async fn main() {
 
 	loop {
 		race.draw();
-		race.update().await;
+		race.update();
 
 		next_frame().await
 	}

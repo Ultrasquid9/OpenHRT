@@ -6,7 +6,7 @@ use victory::{Carrots, Victory};
 
 use crate::{
 	data::{CarrotData, GateData},
-	utils::{load_img_blocking, render_texture_fullscreen},
+	utils::{load_img, render_texture_fullscreen},
 };
 
 pub mod horse;
@@ -32,8 +32,8 @@ impl Race {
 		carrots: CarrotData,
 	) -> Self {
 		let (foreground, background) = tokio::join!(
-			load_img_blocking(foreground_path),
-			load_img_blocking(background_path),
+			load_img(foreground_path),
+			load_img(background_path),
 		);
 
 		Self {
@@ -41,7 +41,7 @@ impl Race {
 			foreground: foreground.clone(),
 			background: Texture2D::from_image(&background),
 			horses,
-			carrots: carrots.into_carrots().await,
+			carrots: carrots.into_carrots(),
 			startup: Some(Startup::new(&background, gate).await),
 			victory: None,
 		}
@@ -53,18 +53,10 @@ impl Race {
 		}
 	}
 
-	pub async fn update(&mut self) {
+	pub fn update(&mut self) {
 		if is_key_down(KeyCode::Backslash) && self.victory.is_none() {
 			self.startup = None;
-			self.victory = Some(
-				self.horses
-					.first()
-					.unwrap()
-					.win_data
-					.clone()
-					.into_victory()
-					.await,
-			);
+			self.victory = Some(self.horses.first().unwrap().win_data.clone().into_victory());
 		}
 
 		if let Some(startup) = &mut self.startup {
@@ -78,9 +70,9 @@ impl Race {
 		} else if let Some(victory) = &mut self.victory {
 			victory.update();
 			return;
-		} else {
-			self.time += get_frame_time();
 		}
+
+		self.time += get_frame_time();
 
 		let collisions = self
 			.horses
@@ -101,7 +93,7 @@ impl Race {
 
 		for horse in &self.horses {
 			if horse.collision_carrots(&self.carrots) {
-				self.victory = Some(horse.win_data.clone().into_victory().await)
+				self.victory = Some(horse.win_data.clone().into_victory())
 			}
 		}
 	}
@@ -160,7 +152,7 @@ fn parse_time(mut time: f32) -> String {
 		time -= 60.;
 	}
 
-	let mut seconds = format!("{:.2}", time);
+	let mut seconds = format!("{time:.2}");
 	if time < 10. {
 		seconds = "0".to_string() + &seconds;
 	}

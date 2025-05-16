@@ -16,13 +16,12 @@ static AUDIO: Global<AudioCache> = audio();
 pub fn play_or_load(key: &str) -> StaticSoundHandle {
 	let mut writer = AUDIO.write();
 
-	let data = match writer.get(key) {
-		Some(data) => data.clone(),
-		None => {
-			let data = read(key);
-			writer.insert(key.into(), data.clone());
-			data
-		}
+	let data = if let Some(data) = writer.get(key) {
+		data.clone()
+	} else {
+		let data = read(key);
+		writer.insert(key.into(), data.clone());
+		data
 	};
 
 	MANAGER
@@ -47,8 +46,6 @@ const fn audio() -> Global<AudioCache> {
 }
 
 fn read(path: &str) -> StaticSoundData {
-	//let path = "./assets/".to_string() + path;
-
 	match StaticSoundData::from_file(path) {
 		Ok(ok) => {
 			tracing::info!("Audio \"{path}\" loaded!");

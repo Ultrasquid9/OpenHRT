@@ -6,7 +6,7 @@ use crate::{
 	audio::play_or_load,
 	data::WinData,
 	dirs,
-	utils::{Dirs, load_img},
+	utils::{Dirs, load_img_blocking},
 };
 
 use super::victory::Carrots;
@@ -38,8 +38,8 @@ pub struct Horse {
 }
 
 impl Horse {
-	pub async fn new(pos: Vec2, img_path: String, win_data: WinData) -> Self {
-		let image = load_img(img_path).await;
+	pub fn new(pos: Vec2, img_path: &str, win_data: WinData) -> Self {
+		let image = load_img_blocking(img_path);
 
 		Self {
 			pos,

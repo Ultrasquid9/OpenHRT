@@ -5,7 +5,7 @@ use macroquad::prelude::*;
 
 use crate::{
 	audio::play_or_load,
-	utils::{debug_img, load_img_2, render_texture_fullscreen},
+	utils::{debug_img, load_img_blocking, render_texture_fullscreen},
 };
 
 const ZOOM_TIME: f32 = 5.;
@@ -43,13 +43,13 @@ impl Carrots {
 }
 
 impl Victory {
-	pub async fn new(name: String, screen: String, music: String) -> Self {
+	pub fn new(name: String, screen: String, music: &str) -> Self {
 		Self {
 			time: 0.,
 			name,
 			zoom: Texture2D::from_image(&get_screen_data()),
 			screen: FileLoad::new(screen),
-			mus: play_or_load(&music),
+			mus: play_or_load(music),
 		}
 	}
 
@@ -113,7 +113,7 @@ impl Victory {
 
 impl FileLoad {
 	fn new(path: String) -> Self {
-		Self::Handle(spawn(move || load_img_2(path)))
+		Self::Handle(spawn(move || load_img_blocking(&path)))
 	}
 
 	fn try_get(&self) -> Option<&Texture2D> {
