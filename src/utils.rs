@@ -33,6 +33,27 @@ pub async fn load_img(path: String) -> Image {
 	}
 }
 
+/// An alternative to `load_img` which can be multithreaded
+pub fn load_img_2(path: String) -> Image {
+	let bytes = match std::fs::read(&path) {
+		Ok(ok) => ok,
+		Err(e) => {
+			tracing::warn!("Image \"{path}\" could not be read: {e}");
+			return DEBUG_IMG.clone();
+		}
+	};
+
+	let img = match Image::from_file_with_format(&bytes, None) {
+		Ok(ok) => ok,
+		Err(e) => {
+			tracing::warn!("Image \"{path}\" failed to load: {e}");
+			return DEBUG_IMG.clone();
+		}
+	};
+	tracing::info!("Image \"{path}\" loaded!");
+	img
+}
+
 pub async fn load_img_blocking(path: String) -> Image {
 	// Because Macroquad panics when multithreaded, using `spawn` does not work.
 	// `spawn_blocking` must be used instead.
@@ -43,6 +64,10 @@ pub async fn load_img_blocking(path: String) -> Image {
 			DEBUG_IMG.clone()
 		}
 	}
+}
+
+pub fn debug_img() -> Image {
+	DEBUG_IMG.clone()
 }
 
 pub fn render_texture_fullscreen(texture: &Texture2D) {

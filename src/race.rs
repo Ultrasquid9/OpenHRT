@@ -54,7 +54,7 @@ impl Race {
 	}
 
 	pub async fn update(&mut self) {
-		if is_key_down(KeyCode::Backslash) {
+		if is_key_down(KeyCode::Backslash) && self.victory.is_none() {
 			self.startup = None;
 			self.victory = Some(
 				self.horses

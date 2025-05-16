@@ -1,12 +1,15 @@
-use std::f32::consts::PI;
+use std::thread::{JoinHandle, spawn};
 
 use kira::sound::{PlaybackState, static_sound::StaticSoundHandle};
 use macroquad::prelude::*;
 
 use crate::{
 	audio::play_or_load,
-	utils::{load_img, render_texture_fullscreen},
+	utils::{debug_img, load_img_2, render_texture_fullscreen},
 };
+
+const ZOOM_TIME: f32 = 5.;
+const FULL_TIME: f32 = 11.;
 
 pub struct Carrots {
 	pub texture: Texture2D,
@@ -17,8 +20,17 @@ pub struct Victory {
 	time: f32,
 	name: String,
 	zoom: Texture2D,
-	screen: Texture2D,
-	handle: StaticSoundHandle,
+	screen: FileLoad,
+	mus: StaticSoundHandle,
+}
+
+enum FileLoad {
+	/// A thread containing the operation
+	Handle(JoinHandle<Image>),
+	/// A texture produced by the operation
+	Texture(Texture2D),
+	/// Used as a temporary value, should only be seen if something goes wrong
+	Poisoned,
 }
 
 impl Carrots {
@@ -32,50 +44,42 @@ impl Carrots {
 
 impl Victory {
 	pub async fn new(name: String, screen: String, music: String) -> Self {
-		// TODO: Reduce/remove stutter that occurs here
 		Self {
 			time: 0.,
 			name,
 			zoom: Texture2D::from_image(&get_screen_data()),
-			screen: Texture2D::from_image(&load_img(screen).await),
-			handle: play_or_load(&music),
+			screen: FileLoad::new(screen),
+			mus: play_or_load(&music),
 		}
 	}
 
 	pub fn update(&mut self) {
 		self.time += get_frame_time();
 
-		if self.handle.state() == PlaybackState::Stopped && self.time > 10. {
+		if self.time >= ZOOM_TIME {
+			self.screen.join();
+		}
+
+		if self.mus.state() == PlaybackState::Stopped && self.time > FULL_TIME {
 			tracing::info!("Race finished");
 			todo!("End the program properly")
 		}
 	}
 
 	pub fn draw(&self) {
-		let (width, height) = (screen_width(), screen_height());
-
-		if self.time <= 6. {
-			let size = vec2(width * (self.time), height * (self.time));
-
-			draw_texture_ex(
-				&self.zoom,
-				-width * 0.3,
-				-height * 0.3,
-				WHITE,
-				DrawTextureParams {
-					rotation: PI,
-					flip_x: true,
-					dest_size: Some(size),
-					..Default::default()
-				},
-			);
-
+		if self.time <= ZOOM_TIME {
+			self.zoom();
 			return;
 		}
+		let Some(screen) = self.screen.try_get() else {
+			self.zoom();
+			return;
+		};
 
-		render_texture_fullscreen(&self.screen);
+		render_texture_fullscreen(screen);
 
-		let current = ((width + height) / 196.) * self.time;
+		let (width, height) = (screen_width(), screen_height());
+		let current = ((width + height) / 196.) * self.time * 1.25;
 		let max = (width + height) / 16.;
 
 		draw_text(
@@ -85,5 +89,58 @@ impl Victory {
 			current.clamp(0., max),
 			WHITE,
 		);
+	}
+
+	fn zoom(&self) {
+		// TODO: Fix
+
+		//let (width, height) = (screen_width(), screen_height());
+		//let size = vec2(width * self.time, height * self.time);
+
+		draw_texture_ex(
+			&self.zoom,
+			0.,
+			0.,
+			WHITE,
+			DrawTextureParams {
+				flip_y: true,
+				//dest_size: Some(size),
+				..Default::default()
+			},
+		);
+	}
+}
+
+impl FileLoad {
+	fn new(path: String) -> Self {
+		Self::Handle(spawn(move || load_img_2(path)))
+	}
+
+	fn try_get(&self) -> Option<&Texture2D> {
+		if let Self::Texture(t) = self {
+			Some(t)
+		} else {
+			None
+		}
+	}
+
+	fn join(&mut self) {
+		if let Self::Handle(_) = self {
+			let owned = std::mem::replace(self, Self::Poisoned);
+
+			let Self::Handle(handle) = owned else {
+				unreachable!("Owned is known to be `Self::Handle(_)`")
+			};
+
+			let img = match handle.join() {
+				Ok(ok) => ok,
+				Err(e) => {
+					tracing::error!("{:?}", e);
+					debug_img()
+				}
+			};
+
+			*self = Self::Texture(Texture2D::from_image(&img));
+		}
 	}
 }
