@@ -8,8 +8,8 @@ use crate::{
 	utils::{debug_img, load_img_blocking, render_texture_fullscreen},
 };
 
-const ZOOM_TIME: f32 = 5.;
-const FULL_TIME: f32 = 11.;
+const ZOOM_TIME: f32 = 4.5;
+const FULL_TIME: f32 = 10.5;
 
 pub struct Carrots {
 	pub texture: Texture2D,
@@ -44,10 +44,13 @@ impl Carrots {
 
 impl Victory {
 	pub fn new(name: String, screen: String, music: &str) -> Self {
+		let zoom = Texture2D::from_image(&get_screen_data());
+		zoom.set_filter(FilterMode::Nearest);
+
 		Self {
 			time: 0.,
 			name,
-			zoom: Texture2D::from_image(&get_screen_data()),
+			zoom,
 			screen: FileLoad::new(screen),
 			mus: play_or_load(music),
 		}
@@ -92,19 +95,18 @@ impl Victory {
 	}
 
 	fn zoom(&self) {
-		// TODO: Fix
-
-		//let (width, height) = (screen_width(), screen_height());
-		//let size = vec2(width * self.time, height * self.time);
+		let (width, height) = (screen_width(), screen_height());
+		let time_pos = -(self.time / ZOOM_TIME);
+		let time_size = self.time + 1.;
 
 		draw_texture_ex(
 			&self.zoom,
-			0.,
-			0.,
+			width * time_pos,
+			height * time_pos,
 			WHITE,
 			DrawTextureParams {
 				flip_y: true,
-				//dest_size: Some(size),
+				dest_size: Some(vec2(width, height) * time_size),
 				..Default::default()
 			},
 		);

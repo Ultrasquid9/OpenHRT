@@ -42,7 +42,7 @@ pub fn load_img_blocking(path: &str) -> Image {
 	img
 }
 
-/// Loads an image from a file asynchronously. 
+/// Loads an image from a file asynchronously.
 /// Avoids Macroquad's async, allowing it to be used in a multithreaded context.
 pub async fn load_img(path: String) -> Image {
 	match tokio::task::spawn_blocking(move || load_img_blocking(&path)).await {
@@ -73,7 +73,7 @@ pub fn render_texture_fullscreen(texture: &Texture2D) {
 }
 
 /// Initiates the log.
-/// Logs an error if already called. 
+/// Logs an error if already called.
 pub fn init_log() {
 	let subscriber = FmtSubscriber::builder()
 		.with_max_level(Level::INFO)

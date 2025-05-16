@@ -31,10 +31,8 @@ impl Race {
 		gate: GateData,
 		carrots: CarrotData,
 	) -> Self {
-		let (foreground, background) = tokio::join!(
-			load_img(foreground_path),
-			load_img(background_path),
-		);
+		let (foreground, background) =
+			tokio::join!(load_img(foreground_path), load_img(background_path));
 
 		Self {
 			time: 0.,
