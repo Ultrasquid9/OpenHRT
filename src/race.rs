@@ -54,6 +54,19 @@ impl Race {
 	}
 
 	pub async fn update(&mut self) {
+		if is_key_down(KeyCode::Backslash) {
+			self.startup = None;
+			self.victory = Some(
+				self.horses
+					.first()
+					.unwrap()
+					.win_data
+					.clone()
+					.into_victory()
+					.await,
+			);
+		}
+
 		if let Some(startup) = &mut self.startup {
 			startup.update();
 
@@ -94,6 +107,11 @@ impl Race {
 	}
 
 	pub fn draw(&self) {
+		if let Some(victory) = &self.victory {
+			victory.draw();
+			return;
+		}
+
 		render_texture_fullscreen(&self.background);
 		render_texture_fullscreen(&Texture2D::from_image(&self.foreground));
 
@@ -112,8 +130,6 @@ impl Race {
 
 		if let Some(startup) = &self.startup {
 			startup.draw();
-		} else if let Some(victory) = &self.victory {
-			victory.draw();
 		}
 	}
 

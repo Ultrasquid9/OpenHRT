@@ -12,8 +12,8 @@ async fn main() {
 	let mut race = race();
 
 	loop {
-		race.update().await;
 		race.draw();
+		race.update().await;
 
 		next_frame().await
 	}
