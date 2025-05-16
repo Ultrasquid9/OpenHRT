@@ -36,7 +36,7 @@ struct Countdown {
 impl Startup {
 	pub async fn new(img: &Image, gate: GateData) -> Self {
 		Self {
-			handle: play_or_load("../assets/audio/place-your-bets-in.flac"),
+			handle: play_or_load("./assets/audio/place-your-bets-in.flac"),
 			countdown: Countdown::new().await,
 			gate: Gate::new(img, gate).await,
 		}

@@ -1,10 +1,10 @@
 use hashbrown::HashMap;
 use parking_lot::RwLock;
-use std::sync::{Arc, LazyLock};
+use std::sync::LazyLock;
 
 use kira::{
 	AudioManager, AudioManagerSettings,
-	sound::static_sound::{StaticSoundData, StaticSoundHandle, StaticSoundSettings},
+	sound::static_sound::{StaticSoundData, StaticSoundHandle},
 };
 
 type Global<T> = LazyLock<RwLock<T>>;
@@ -47,18 +47,16 @@ const fn audio() -> Global<AudioCache> {
 }
 
 fn read(path: &str) -> StaticSoundData {
-	let path = "./assets/".to_string() + path;
+	//let path = "./assets/".to_string() + path;
 
 	match StaticSoundData::from_file(path) {
-		Ok(ok) => ok,
+		Ok(ok) => {
+			tracing::info!("Audio \"{path}\" loaded!");
+			ok
+		}
 		Err(e) => {
-			tracing::error!("{e}");
-			StaticSoundData {
-				sample_rate: 0,
-				frames: Arc::new([]),
-				settings: StaticSoundSettings::new(),
-				slice: None,
-			}
+			tracing::error!("Failed to load audio from \"{path}\": {e}");
+			panic!()
 		}
 	}
 }

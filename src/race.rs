@@ -2,11 +2,11 @@ use macroquad::prelude::*;
 
 use horse::{Collisions, Horse, NO_COLLISION};
 use startup::Startup;
-use victory::Carrots;
+use victory::{Carrots, Victory};
 
 use crate::{
 	data::{CarrotData, GateData},
-	utils::load_img_blocking,
+	utils::{load_img_blocking, render_texture_fullscreen},
 };
 
 pub mod horse;
@@ -20,6 +20,7 @@ pub struct Race {
 	horses: Vec<Horse>,
 	carrots: Carrots,
 	startup: Option<Startup>,
+	victory: Option<Victory>,
 }
 
 impl Race {
@@ -40,8 +41,9 @@ impl Race {
 			foreground: foreground.clone(),
 			background: Texture2D::from_image(&background),
 			horses,
-			startup: Some(Startup::new(&background, gate).await),
 			carrots: carrots.into_carrots().await,
+			startup: Some(Startup::new(&background, gate).await),
+			victory: None,
 		}
 	}
 
@@ -51,7 +53,7 @@ impl Race {
 		}
 	}
 
-	pub fn update(&mut self) {
+	pub async fn update(&mut self) {
 		if let Some(startup) = &mut self.startup {
 			startup.update();
 
@@ -59,6 +61,9 @@ impl Race {
 				self.startup = None;
 			}
 
+			return;
+		} else if let Some(victory) = &mut self.victory {
+			victory.update();
 			return;
 		} else {
 			self.time += get_frame_time();
@@ -83,7 +88,7 @@ impl Race {
 
 		for horse in &self.horses {
 			if horse.collision_carrots(&self.carrots) {
-				// TODO: Do Something Here
+				self.victory = Some(horse.win_data.clone().into_victory().await)
 			}
 		}
 	}
@@ -107,6 +112,8 @@ impl Race {
 
 		if let Some(startup) = &self.startup {
 			startup.draw();
+		} else if let Some(victory) = &self.victory {
+			victory.draw();
 		}
 	}
 
@@ -128,19 +135,6 @@ impl Race {
 			params,
 		);
 	}
-}
-
-fn render_texture_fullscreen(texture: &Texture2D) {
-	draw_texture_ex(
-		texture,
-		0.,
-		0.,
-		WHITE,
-		DrawTextureParams {
-			dest_size: Some(vec2(screen_width(), screen_height())),
-			..Default::default()
-		},
-	);
 }
 
 fn parse_time(mut time: f32) -> String {

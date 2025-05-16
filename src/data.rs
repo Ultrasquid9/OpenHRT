@@ -1,15 +1,19 @@
 use std::path::{Path, PathBuf};
 
-use macroquad::{math::Vec2, miniquad};
+use macroquad::prelude::*;
 use serde::{Deserialize, de::DeserializeOwned};
 use tracing::error;
 
 use crate::{
-	race::{Race, horse::Horse, victory::Carrots},
+	race::{
+		Race,
+		horse::Horse,
+		victory::{Carrots, Victory},
+	},
 	utils::load_img,
 };
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Default)]
 pub struct RaceData {
 	foreground: PathBuf,
 	background: PathBuf,
@@ -20,21 +24,29 @@ pub struct RaceData {
 	carrots: CarrotData,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Default)]
 pub struct HorseData {
 	sprite: PathBuf,
+	win_data: WinData,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Default)]
 pub struct GateData {
 	start: Vec2,
 	end: Vec2,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Default)]
 pub struct CarrotData {
 	pos: Vec2,
 	sprite: PathBuf,
+}
+
+#[derive(Deserialize, Default, Clone, PartialEq)]
+pub struct WinData {
+	name: String,
+	music: PathBuf,
+	screen: PathBuf,
 }
 
 impl RaceData {
@@ -71,31 +83,9 @@ impl RaceData {
 	}
 }
 
-impl Default for RaceData {
-	fn default() -> Self {
-		Self {
-			foreground: PathBuf::new(),
-			background: PathBuf::new(),
-			seed: None,
-			skip_intro: None,
-			horses: vec![],
-			gate: GateData::default(),
-			carrots: CarrotData::default(),
-		}
-	}
-}
-
 impl HorseData {
 	pub async fn into_horse(self, pos: Vec2) -> Horse {
-		Horse::new(pos, stringify(self.sprite)).await
-	}
-}
-
-impl Default for HorseData {
-	fn default() -> Self {
-		Self {
-			sprite: PathBuf::new(),
-		}
+		Horse::new(pos, stringify(self.sprite), self.win_data).await
 	}
 }
 
@@ -105,27 +95,15 @@ impl GateData {
 	}
 }
 
-impl Default for GateData {
-	fn default() -> Self {
-		Self {
-			start: Vec2::ZERO,
-			end: Vec2::ZERO,
-		}
-	}
-}
-
 impl CarrotData {
 	pub async fn into_carrots(self) -> Carrots {
 		Carrots::new(self.pos, &load_img(stringify(self.sprite)).await)
 	}
 }
 
-impl Default for CarrotData {
-	fn default() -> Self {
-		Self {
-			pos: Vec2::ZERO,
-			sprite: PathBuf::new(),
-		}
+impl WinData {
+	pub async fn into_victory(self) -> Victory {
+		Victory::new(self.name, stringify(self.screen), stringify(self.music)).await
 	}
 }
 

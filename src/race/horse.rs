@@ -4,6 +4,7 @@ use macroquad::prelude::*;
 
 use crate::{
 	audio::play_or_load,
+	data::WinData,
 	dirs,
 	utils::{Dirs, load_img},
 };
@@ -33,10 +34,11 @@ pub struct Horse {
 	pub dir: Vec2,
 	pub texture: Texture2D,
 	pub speed: f32,
+	pub win_data: WinData,
 }
 
 impl Horse {
-	pub async fn new(pos: Vec2, img_path: String) -> Self {
+	pub async fn new(pos: Vec2, img_path: String, win_data: WinData) -> Self {
 		let image = load_img(img_path).await;
 
 		Self {
@@ -44,6 +46,7 @@ impl Horse {
 			dir: vec2(rand::gen_range(-1., 1.), rand::gen_range(-1., 1.)).normalize(),
 			texture: Texture2D::from_image(&image),
 			speed: 1.,
+			win_data,
 		}
 	}
 
@@ -109,13 +112,13 @@ impl Horse {
 			new_dir = DIRS[i as usize];
 		}
 
-		new_dir.x += rand::gen_range(-10., 10.);
-		new_dir.y += rand::gen_range(-10., 10.);
+		new_dir.x += rand::gen_range(-24., 24.);
+		new_dir.y += rand::gen_range(-24., 24.);
 
 		self.dir = new_dir.normalize() * -1.;
 		self.speed = rand::gen_range(1., 2.);
 
-		play_or_load("../assets/audio/bounce.flac");
+		play_or_load("./assets/audio/bounce.flac");
 	}
 }
 

@@ -1,1 +1,6 @@
 sprite = "./assets/horses/olive.png"
+
+[win_data]
+name = "Olive"
+music = "./assets/audio/place-your-bets-in.flac"
+screen = "./assets/horses/olive-win.png"

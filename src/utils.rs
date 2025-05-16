@@ -34,8 +34,8 @@ pub async fn load_img(path: String) -> Image {
 }
 
 pub async fn load_img_blocking(path: String) -> Image {
-	// Because Macroquad panics when multithreaded, using `spawn` does not work. 
-	// `spawn_blocking` must be used instead. 
+	// Because Macroquad panics when multithreaded, using `spawn` does not work.
+	// `spawn_blocking` must be used instead.
 	match tokio::task::spawn_blocking(async move || load_img(path).await).await {
 		Ok(ok) => ok.await,
 		Err(e) => {
@@ -43,6 +43,19 @@ pub async fn load_img_blocking(path: String) -> Image {
 			DEBUG_IMG.clone()
 		}
 	}
+}
+
+pub fn render_texture_fullscreen(texture: &Texture2D) {
+	draw_texture_ex(
+		texture,
+		0.,
+		0.,
+		WHITE,
+		DrawTextureParams {
+			dest_size: Some(vec2(screen_width(), screen_height())),
+			..Default::default()
+		},
+	);
 }
 
 pub fn init_log() {
