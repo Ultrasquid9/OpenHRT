@@ -12,6 +12,7 @@ horses = [
 [gate]
 start = [600, 150]
 end = [700, 450]
+sprite = "./assets/gate.png"
 
 [carrots]
 pos = [250, 1050]

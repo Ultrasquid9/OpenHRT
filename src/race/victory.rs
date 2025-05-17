@@ -9,7 +9,7 @@ use crate::{
 };
 
 const ZOOM_TIME: f32 = 4.5;
-const FULL_TIME: f32 = 10.5;
+const FULL_TIME: f32 = 13.;
 
 pub struct Carrots {
 	pub texture: Texture2D,
@@ -62,11 +62,10 @@ impl Victory {
 		if self.time >= ZOOM_TIME {
 			self.screen.join();
 		}
+	}
 
-		if self.mus.state() == PlaybackState::Stopped && self.time > FULL_TIME {
-			tracing::info!("Race finished");
-			todo!("End the program properly")
-		}
+	pub fn should_finish(&self) -> bool {
+		self.mus.state() == PlaybackState::Stopped && self.time > FULL_TIME
 	}
 
 	pub fn draw(&self) {

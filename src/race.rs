@@ -96,6 +96,10 @@ impl Race {
 		}
 	}
 
+	pub fn should_finish(&self) -> bool {
+		matches!(&self.victory, Some(victory) if victory.should_finish())
+	}
+
 	pub fn draw(&self) {
 		if let Some(victory) = &self.victory {
 			victory.draw();

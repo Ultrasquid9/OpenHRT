@@ -58,13 +58,14 @@ impl Startup {
 
 impl Gate {
 	async fn new(img: &Image, data: GateData) -> Self {
+		let texture = data.texture().await;
 		let (pos, size) = data.into_pos_size();
 
 		Self {
 			pos,
 			size,
 			scale: vec2(img.width as f32, img.height as f32),
-			texture: Texture2D::from_image(&load_img("./assets/gate.png".into()).await),
+			texture,
 		}
 	}
 

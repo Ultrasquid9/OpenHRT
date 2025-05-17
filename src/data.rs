@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::{fmt::Debug, path::{Path, PathBuf}};
 
 use macroquad::prelude::*;
 use serde::{Deserialize, de::DeserializeOwned};
@@ -6,11 +6,9 @@ use tracing::error;
 
 use crate::{
 	race::{
-		Race,
-		horse::Horse,
-		victory::{Carrots, Victory},
+		horse::Horse, victory::{Carrots, Victory}, Race
 	},
-	utils::load_img_blocking,
+	utils::{load_img, load_img_blocking},
 };
 
 #[derive(Deserialize, Default)]
@@ -34,6 +32,7 @@ pub struct HorseData {
 pub struct GateData {
 	start: Vec2,
 	end: Vec2,
+	sprite: PathBuf,
 }
 
 #[derive(Deserialize, Default)]
@@ -50,7 +49,7 @@ pub struct WinData {
 }
 
 impl RaceData {
-	pub fn load(path: impl AsRef<Path>) -> Self {
+	pub fn load(path: impl AsRef<Path> + Debug) -> Self {
 		read(path)
 	}
 
@@ -93,6 +92,10 @@ impl GateData {
 	pub fn into_pos_size(self) -> (Vec2, Vec2) {
 		(self.start, self.end - self.start)
 	}
+
+	pub async fn texture(&self) -> Texture2D {
+		Texture2D::from_image(&load_img(stringify(&self.sprite)).await)
+	}
 }
 
 impl CarrotData {
@@ -107,14 +110,14 @@ impl WinData {
 	}
 }
 
-fn read<Out>(path: impl AsRef<Path>) -> Out
+fn read<Out>(path: impl AsRef<Path> + Debug) -> Out
 where
 	Out: DeserializeOwned + Default,
 {
-	let str = match std::fs::read_to_string(path) {
+	let str = match std::fs::read_to_string(&path) {
 		Ok(ok) => ok,
 		Err(e) => {
-			tracing::error!("{e}");
+			tracing::error!("Failed to read file {path:?}: {e}");
 			return Out::default();
 		}
 	};
@@ -122,7 +125,7 @@ where
 	match toml::from_str(&str) {
 		Ok(ok) => ok,
 		Err(e) => {
-			tracing::error!("{e}");
+			tracing::error!("Failed to decode file {path:?}: {e}");
 			Out::default()
 		}
 	}
@@ -132,7 +135,7 @@ fn stringify(pth: &PathBuf) -> String {
 	if let Some(str) = pth.as_os_str().to_str() {
 		str.into()
 	} else {
-		error!("{:?} is not valid unicode!", pth);
+		error!("{pth:?} is not valid unicode!");
 		String::new()
 	}
 }

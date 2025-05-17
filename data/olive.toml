@@ -2,5 +2,5 @@ sprite = "./assets/horses/olive.png"
 
 [win_data]
 name = "Olive"
-music = "./assets/audio/place-your-bets-in.flac"
+music = "./assets/audio/olive-win.ogg"
 screen = "./assets/horses/olive-win.png"

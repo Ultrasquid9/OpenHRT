@@ -22,6 +22,11 @@ async fn main() {
 		race.draw();
 		race.update();
 
+		if race.should_finish() {
+			tracing::info!("Race finished");
+			return;
+		}
+
 		next_frame().await
 	}
 }

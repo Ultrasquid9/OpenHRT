@@ -7,7 +7,7 @@ edition = "2024"
 macroquad = { version = "0.4", features = ["glam-serde"] }
 
 # audio
-kira = { version = "0.10", default-features = false, features = ["cpal", "mp3", "flac"] }
+kira = { version = "0.10", default-features = false, features = ["cpal", "ogg", "flac"] }
 
 # (de)serialization
 toml = "0.8"
