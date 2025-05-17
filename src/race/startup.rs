@@ -2,10 +2,10 @@ use kira::{Tween, sound::PlaybackState};
 use macroquad::prelude::*;
 
 use crate::{
-	audio::{StreamHandle, stream},
-	data::GateData,
+	audio::StreamHandle,
+	data::{CountdownData, GateData},
 	dirs,
-	utils::{Dirs, load_img},
+	utils::Dirs,
 };
 
 pub struct Startup {
@@ -31,10 +31,10 @@ struct Countdown {
 }
 
 impl Startup {
-	pub async fn new(img: &Image, gate: GateData) -> Self {
+	pub async fn new(img: &Image, gate: GateData, countdown: CountdownData) -> Self {
 		Self {
-			handle: stream("./assets/audio/place-your-bets-in.flac"),
-			countdown: Countdown::new().await,
+			handle: countdown.play_sound(),
+			countdown: Countdown::new(countdown).await,
 			gate: Gate::new(img, gate).await,
 		}
 	}
@@ -91,8 +91,8 @@ impl Countdown {
 		( 24., -24.),
 	];
 
-	async fn new() -> Self {
-		let img = load_img("./assets/countdown.png".into()).await;
+	async fn new(data: CountdownData) -> Self {
+		let img = data.image().await;
 		let rect = Rect::new(0., 0., img.width as f32, (img.height / 12) as f32);
 
 		Self {

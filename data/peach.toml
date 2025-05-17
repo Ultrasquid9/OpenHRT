@@ -1,6 +1,6 @@
 sprite = "./assets/horses/peach.png"
 
 [win_data]
-name = "Peach"
+name = "Sound Memory"
 music = "./assets/audio/peach-win.ogg"
 screen = "./assets/horses/peach-win.png"

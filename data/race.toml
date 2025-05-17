@@ -9,6 +9,10 @@ horses = [
 	[ [450, 450], "./data/purble.toml" ],
 ]
 
+[countdown]
+audio = "./assets/audio/place-your-bets-in.flac"
+sprite = "./assets/countdown.png"
+
 [gate]
 start = [600, 150]
 end = [700, 450]

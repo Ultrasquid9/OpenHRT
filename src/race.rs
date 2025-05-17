@@ -5,7 +5,7 @@ use startup::Startup;
 use victory::{Carrots, Victory};
 
 use crate::{
-	data::{CarrotData, GateData},
+	data::{CarrotData, CountdownData, GateData},
 	utils::{load_img, render_texture_fullscreen},
 };
 
@@ -29,6 +29,7 @@ impl Race {
 		background_path: String,
 		horses: Vec<Horse>,
 		gate: GateData,
+		countdown: CountdownData,
 		carrots: CarrotData,
 	) -> Self {
 		let (foreground, background) =
@@ -40,7 +41,7 @@ impl Race {
 			background: Texture2D::from_image(&background),
 			horses,
 			carrots: carrots.into_carrots(),
-			startup: Some(Startup::new(&background, gate).await),
+			startup: Some(Startup::new(&background, gate, countdown).await),
 			victory: None,
 		}
 	}

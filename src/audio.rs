@@ -27,10 +27,12 @@ pub fn stream(path: &str) -> StreamHandle {
 		}
 	};
 
-	MANAGER
+	let handle = MANAGER
 		.write()
 		.play(data)
-		.expect("Should be able to play audio!")
+		.expect("Should be able to play audio!");
+	tracing::info!("Audio {path} is streaming!");
+	handle
 }
 
 pub fn play_or_load(key: &str) -> StaticSoundHandle {

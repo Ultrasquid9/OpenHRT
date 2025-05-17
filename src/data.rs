@@ -8,6 +8,7 @@ use serde::{Deserialize, de::DeserializeOwned};
 use tracing::error;
 
 use crate::{
+	audio::{StreamHandle, stream},
 	race::{
 		Race,
 		horse::Horse,
@@ -23,6 +24,7 @@ pub struct RaceData {
 	seed: Option<u64>,
 	skip_intro: Option<bool>,
 	horses: Vec<(Vec2, PathBuf)>,
+	countdown: CountdownData,
 	gate: GateData,
 	carrots: CarrotData,
 }
@@ -37,6 +39,12 @@ pub struct HorseData {
 pub struct GateData {
 	start: Vec2,
 	end: Vec2,
+	sprite: PathBuf,
+}
+
+#[derive(Deserialize, Default)]
+pub struct CountdownData {
+	audio: PathBuf,
 	sprite: PathBuf,
 }
 
@@ -79,6 +87,7 @@ impl RaceData {
 			stringify(&self.background),
 			horses,
 			self.gate,
+			self.countdown,
 			self.carrots,
 		)
 		.await;
@@ -100,6 +109,16 @@ impl GateData {
 
 	pub async fn texture(&self) -> Texture2D {
 		Texture2D::from_image(&load_img(stringify(&self.sprite)).await)
+	}
+}
+
+impl CountdownData {
+	pub fn play_sound(&self) -> StreamHandle {
+		stream(&stringify(&self.audio))
+	}
+
+	pub async fn image(&self) -> Image {
+		load_img(stringify(&self.sprite)).await
 	}
 }
 
