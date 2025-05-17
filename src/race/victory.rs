@@ -1,10 +1,10 @@
 use std::thread::{JoinHandle, spawn};
 
-use kira::sound::{PlaybackState, static_sound::StaticSoundHandle};
+use kira::sound::PlaybackState;
 use macroquad::prelude::*;
 
 use crate::{
-	audio::play_or_load,
+	audio::{StreamHandle, stream},
 	utils::{debug_img, load_img_blocking, render_texture_fullscreen},
 };
 
@@ -21,7 +21,7 @@ pub struct Victory {
 	name: String,
 	zoom: Texture2D,
 	screen: FileLoad,
-	mus: StaticSoundHandle,
+	mus: StreamHandle,
 }
 
 enum FileLoad {
@@ -52,7 +52,7 @@ impl Victory {
 			name,
 			zoom,
 			screen: FileLoad::new(screen),
-			mus: play_or_load(music),
+			mus: stream(music),
 		}
 	}
 

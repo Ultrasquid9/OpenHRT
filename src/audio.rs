@@ -4,14 +4,34 @@ use std::sync::LazyLock;
 
 use kira::{
 	AudioManager, AudioManagerSettings,
-	sound::static_sound::{StaticSoundData, StaticSoundHandle},
+	sound::{
+		FromFileError,
+		static_sound::{StaticSoundData, StaticSoundHandle},
+		streaming::{StreamingSoundData, StreamingSoundHandle},
+	},
 };
 
+pub type StreamHandle = StreamingSoundHandle<FromFileError>;
 type Global<T> = LazyLock<RwLock<T>>;
 type AudioCache = HashMap<String, StaticSoundData>;
 
 static MANAGER: Global<AudioManager> = manager();
 static AUDIO: Global<AudioCache> = audio();
+
+pub fn stream(path: &str) -> StreamHandle {
+	let data = match StreamingSoundData::from_file(path) {
+		Ok(ok) => ok,
+		Err(e) => {
+			tracing::error!("Failed to stream file \"{path}\": {e}");
+			panic!()
+		}
+	};
+
+	MANAGER
+		.write()
+		.play(data)
+		.expect("Should be able to play audio!")
+}
 
 pub fn play_or_load(key: &str) -> StaticSoundHandle {
 	let mut writer = AUDIO.write();

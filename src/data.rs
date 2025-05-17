@@ -1,4 +1,7 @@
-use std::{fmt::Debug, path::{Path, PathBuf}};
+use std::{
+	fmt::Debug,
+	path::{Path, PathBuf},
+};
 
 use macroquad::prelude::*;
 use serde::{Deserialize, de::DeserializeOwned};
@@ -6,7 +9,9 @@ use tracing::error;
 
 use crate::{
 	race::{
-		horse::Horse, victory::{Carrots, Victory}, Race
+		Race,
+		horse::Horse,
+		victory::{Carrots, Victory},
 	},
 	utils::{load_img, load_img_blocking},
 };

@@ -1,18 +1,15 @@
-use kira::{
-	Tween,
-	sound::{PlaybackState, static_sound::StaticSoundHandle},
-};
+use kira::{Tween, sound::PlaybackState};
 use macroquad::prelude::*;
 
 use crate::{
-	audio::play_or_load,
+	audio::{StreamHandle, stream},
 	data::GateData,
 	dirs,
 	utils::{Dirs, load_img},
 };
 
 pub struct Startup {
-	handle: StaticSoundHandle,
+	handle: StreamHandle,
 	countdown: Countdown,
 	gate: Gate,
 }
@@ -36,7 +33,7 @@ struct Countdown {
 impl Startup {
 	pub async fn new(img: &Image, gate: GateData) -> Self {
 		Self {
-			handle: play_or_load("./assets/audio/place-your-bets-in.flac"),
+			handle: stream("./assets/audio/place-your-bets-in.flac"),
 			countdown: Countdown::new().await,
 			gate: Gate::new(img, gate).await,
 		}
