@@ -28,7 +28,7 @@ pub const DIRS: Dirs<8> = dirs![
 	( DIR_WIDTH, 0.),
 ];
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone)]
 pub struct Horse {
 	pub pos: Vec2,
 	pub dir: Vec2,
@@ -51,10 +51,15 @@ impl Horse {
 	}
 
 	pub fn update(&mut self) {
-		self.pos += self.dir * self.speed * 2.;
+		// Should be somewhere around 1 when game is running 60 FPS.
+		// Clamped to 4 to prevent stutters from breaking physics.
+		// Hopefully the game will never have to go below 15 FPS. 
+		let approx_one = (get_frame_time() * 60.).clamp(0., 4.);
+
+		self.pos += self.dir * self.speed * approx_one * 2.;
 
 		if self.speed < 3.5 {
-			self.speed += 0.01;
+			self.speed += approx_one / 100.;
 		}
 	}
 
@@ -119,6 +124,12 @@ impl Horse {
 		self.speed = rand::gen_range(1., 2.);
 
 		play_or_load("./assets/audio/bounce.flac");
+	}
+}
+
+impl PartialEq for Horse {
+	fn eq(&self, other: &Self) -> bool {
+		self.dir == other.dir && self.pos == other.pos && self.speed == other.speed
 	}
 }
 

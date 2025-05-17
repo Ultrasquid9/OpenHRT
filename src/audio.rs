@@ -27,15 +27,18 @@ pub fn stream(path: &str) -> StreamHandle {
 		}
 	};
 
-	let handle = MANAGER
-		.write()
-		.play(data)
-		.expect("Should be able to play audio!");
-	tracing::info!("Audio {path} is streaming!");
-	handle
+	match MANAGER.write().play(data) {
+		Ok(ok) => {
+			tracing::info!("Audio {path} is streaming!");
+			ok
+		}
+		Err(_) => {
+			todo!("Handle stream playing errors")
+		}
+	}
 }
 
-pub fn play_or_load(key: &str) -> StaticSoundHandle {
+pub fn play_or_load(key: &str) -> Option<StaticSoundHandle> {
 	let mut writer = AUDIO.write();
 
 	let data = if let Some(data) = writer.get(key) {
@@ -46,10 +49,13 @@ pub fn play_or_load(key: &str) -> StaticSoundHandle {
 		data
 	};
 
-	MANAGER
-		.write()
-		.play(data)
-		.expect("Should be able to play audio!")
+	match MANAGER.write().play(data) {
+		Ok(ok) => Some(ok),
+		Err(e) => {
+			tracing::warn!("Failed to play audio: {e}");
+			None
+		}
+	}
 }
 
 const fn manager() -> Global<AudioManager> {

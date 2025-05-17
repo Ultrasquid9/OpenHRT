@@ -54,7 +54,7 @@ pub struct CarrotData {
 	sprite: PathBuf,
 }
 
-#[derive(Deserialize, Default, Clone, PartialEq)]
+#[derive(Deserialize, Default, Clone)]
 pub struct WinData {
 	name: String,
 	music: PathBuf,

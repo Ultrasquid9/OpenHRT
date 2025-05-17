@@ -5,14 +5,14 @@
 #![allow(clippy::cast_possible_truncation)]
 #![allow(clippy::semicolon_if_nothing_returned)]
 
-use macroquad::prelude::*;
+use macroquad::{miniquad::conf::Platform, prelude::*};
 
 mod audio;
 mod data;
 mod race;
 mod utils;
 
-#[macroquad::main("OpenHRT")]
+#[macroquad::main(conf)]
 async fn main() {
 	utils::init_log();
 
@@ -43,4 +43,15 @@ fn race() -> race::Race {
 			.into_race()
 			.await
 	})
+}
+
+fn conf() -> Conf {
+	Conf {
+		window_title: "OpenHRT".into(),
+		platform: Platform {
+			//swap_interval: Some(0),
+			..Default::default()
+		},
+		..Default::default()
+	}
 }
