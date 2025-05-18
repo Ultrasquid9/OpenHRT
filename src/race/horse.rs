@@ -53,7 +53,7 @@ impl Horse {
 	pub fn update(&mut self) {
 		// Should be somewhere around 1 when game is running 60 FPS.
 		// Clamped to 4 to prevent stutters from breaking physics.
-		// Hopefully the game will never have to go below 15 FPS. 
+		// Hopefully the game will never have to go below 15 FPS.
 		let approx_one = (get_frame_time() * 60.).clamp(0., 4.);
 
 		self.pos += self.dir * self.speed * approx_one * 2.;

@@ -76,6 +76,9 @@ impl RaceData {
 	}
 
 	pub async fn into_race(self) -> Race {
+		let foreground = load_img(stringify(&self.foreground));
+		let background = load_img(stringify(&self.background));
+
 		let mut horses = vec![];
 		for (pos, path) in self.horses {
 			let horse = read::<HorseData>(path);
@@ -83,8 +86,8 @@ impl RaceData {
 		}
 
 		let mut race = Race::new(
-			stringify(&self.foreground),
-			stringify(&self.background),
+			foreground,
+			background,
 			horses,
 			self.gate,
 			self.countdown,

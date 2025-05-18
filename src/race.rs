@@ -6,7 +6,7 @@ use victory::{Carrots, Victory};
 
 use crate::{
 	data::{CarrotData, CountdownData, GateData},
-	utils::{load_img, render_texture_fullscreen},
+	utils::render_texture_fullscreen,
 };
 
 pub mod horse;
@@ -25,19 +25,18 @@ pub struct Race {
 
 impl Race {
 	pub async fn new(
-		foreground_path: String,
-		background_path: String,
+		foreground: impl Future<Output = Image>,
+		background: impl Future<Output = Image>,
 		horses: Vec<Horse>,
 		gate: GateData,
 		countdown: CountdownData,
 		carrots: CarrotData,
 	) -> Self {
-		let (foreground, background) =
-			tokio::join!(load_img(foreground_path), load_img(background_path));
+		let (foreground, background) = tokio::join!(foreground, background);
 
 		Self {
 			time: 0.,
-			foreground: foreground.clone(),
+			foreground,
 			background: Texture2D::from_image(&background),
 			horses,
 			carrots: carrots.into_carrots(),

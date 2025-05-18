@@ -82,7 +82,7 @@ impl Victory {
 
 		let (width, height) = (screen_width(), screen_height());
 		let current = ((width + height) / 196.) * self.time * 1.25;
-		let max = ((width + height) / 24.).round();
+		let max = ((width + height) / 28.).round();
 
 		let size = current.clamp(0., max);
 
@@ -91,14 +91,14 @@ impl Victory {
 			width * 0.05,
 			height * 0.95,
 			TextParams {
-				// Macroquad caches fonts every time it sees a font with a 
-				// different size, which leads to severe performance issues 
+				// Macroquad caches fonts every time it sees a font with a
+				// different size, which leads to severe performance issues
 				// if the font size regularly changes.
 				//
-				// Rounding the font size, then adjusting the scale, allows 
+				// Rounding the font size, then adjusting the scale, allows
 				// for reduced caching while preserving font sharpness.
 				font_size: size.round() as u16,
-				font_scale: 1. + (size / 40.).fract(),
+				font_scale: 1. + (size / (max / 5. * 4.)).fract(),
 				..Default::default()
 			},
 		);
