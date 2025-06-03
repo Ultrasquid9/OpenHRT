@@ -1,4 +1,5 @@
 use core::f32;
+use std::{fmt::Debug, path::Path};
 
 use macroquad::prelude::*;
 
@@ -38,7 +39,7 @@ pub struct Horse {
 }
 
 impl Horse {
-	pub fn new(pos: Vec2, img_path: &str, win_data: WinData) -> Self {
+	pub fn new<Dir: AsRef<Path> + Debug>(pos: Vec2, img_path: Dir, win_data: WinData) -> Self {
 		let image = load_img_blocking(img_path);
 
 		Self {

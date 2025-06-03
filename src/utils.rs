@@ -1,4 +1,4 @@
-use std::sync::LazyLock;
+use std::{fmt::Debug, path::Path, sync::LazyLock};
 
 use hex_literal::hex;
 use macroquad::prelude::*;
@@ -22,11 +22,11 @@ static DEBUG_IMG: LazyLock<Image> = LazyLock::new(|| {
 
 /// Loads an image from a file.
 /// Avoids Macroquad's async, allowing it to be used in a multithreaded context.
-pub fn load_img_blocking(path: &str) -> Image {
-	let bytes = match std::fs::read(path) {
+pub fn load_img_blocking<Dir: AsRef<Path> + Debug>(path: Dir) -> Image {
+	let bytes = match std::fs::read(&path) {
 		Ok(ok) => ok,
 		Err(e) => {
-			tracing::warn!("Image \"{path}\" could not be read: {e}");
+			tracing::warn!("Image {path:?} could not be read: {e}");
 			return debug_img();
 		}
 	};
@@ -34,17 +34,20 @@ pub fn load_img_blocking(path: &str) -> Image {
 	let img = match Image::from_file_with_format(&bytes, None) {
 		Ok(ok) => ok,
 		Err(e) => {
-			tracing::warn!("Image \"{path}\" failed to load: {e}");
+			tracing::warn!("Image {path:?} failed to load: {e}");
 			return debug_img();
 		}
 	};
-	tracing::info!("Image \"{path}\" loaded!");
+	tracing::info!("Image {path:?} loaded!");
 	img
 }
 
 /// Loads an image from a file asynchronously.
 /// Avoids Macroquad's async, allowing it to be used in a multithreaded context.
-pub async fn load_img(path: String) -> Image {
+pub async fn load_img<Dir>(path: Dir) -> Image
+where
+	Dir: AsRef<Path> + Debug + Send + 'static,
+{
 	match tokio::task::spawn_blocking(move || load_img_blocking(&path)).await {
 		Ok(ok) => ok,
 		Err(e) => {

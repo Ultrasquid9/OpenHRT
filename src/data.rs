@@ -5,7 +5,6 @@ use std::{
 
 use macroquad::prelude::*;
 use serde::{Deserialize, de::DeserializeOwned};
-use tracing::error;
 
 use crate::{
 	audio::{StreamHandle, stream},
@@ -76,8 +75,8 @@ impl RaceData {
 	}
 
 	pub async fn into_race(self) -> Race {
-		let foreground = load_img(stringify(&self.foreground));
-		let background = load_img(stringify(&self.background));
+		let foreground = load_img(self.foreground);
+		let background = load_img(self.background);
 
 		let mut horses = vec![];
 		for (pos, path) in self.horses {
@@ -101,7 +100,7 @@ impl RaceData {
 
 impl HorseData {
 	pub fn into_horse(self, pos: Vec2) -> Horse {
-		Horse::new(pos, &stringify(&self.sprite), self.win_data)
+		Horse::new(pos, self.sprite, self.win_data)
 	}
 }
 
@@ -111,29 +110,29 @@ impl GateData {
 	}
 
 	pub async fn texture(&self) -> Texture2D {
-		Texture2D::from_image(&load_img(stringify(&self.sprite)).await)
+		Texture2D::from_image(&load_img(self.sprite.clone()).await)
 	}
 }
 
 impl CountdownData {
 	pub fn play_sound(&self) -> StreamHandle {
-		stream(&stringify(&self.audio))
+		stream(&self.audio)
 	}
 
 	pub async fn image(&self) -> Image {
-		load_img(stringify(&self.sprite)).await
+		load_img(self.sprite.clone()).await
 	}
 }
 
 impl CarrotData {
 	pub fn into_carrots(self) -> Carrots {
-		Carrots::new(self.pos, &load_img_blocking(&stringify(&self.sprite)))
+		Carrots::new(self.pos, &load_img_blocking(self.sprite))
 	}
 }
 
 impl WinData {
 	pub fn into_victory(self) -> Victory {
-		Victory::new(self.name, stringify(&self.screen), &stringify(&self.music))
+		Victory::new(self.name, self.screen, self.music)
 	}
 }
 
@@ -155,14 +154,5 @@ where
 			tracing::error!("Failed to decode file {path:?}: {e}");
 			Out::default()
 		}
-	}
-}
-
-fn stringify(pth: &PathBuf) -> String {
-	if let Some(str) = pth.as_os_str().to_str() {
-		str.into()
-	} else {
-		error!("{pth:?} is not valid unicode!");
-		String::new()
 	}
 }

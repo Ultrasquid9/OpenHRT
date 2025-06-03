@@ -1,6 +1,6 @@
 use hashbrown::HashMap;
 use parking_lot::RwLock;
-use std::sync::LazyLock;
+use std::{fmt::Debug, path::Path, sync::LazyLock};
 
 use kira::{
 	AudioManager, AudioManagerSettings,
@@ -18,18 +18,18 @@ type AudioCache = HashMap<String, StaticSoundData>;
 static MANAGER: Global<AudioManager> = manager();
 static AUDIO: Global<AudioCache> = audio();
 
-pub fn stream(path: &str) -> StreamHandle {
-	let data = match StreamingSoundData::from_file(path) {
+pub fn stream<Dir: AsRef<Path> + Debug>(path: Dir) -> StreamHandle {
+	let data = match StreamingSoundData::from_file(&path) {
 		Ok(ok) => ok,
 		Err(e) => {
-			tracing::error!("Failed to stream file \"{path}\": {e}");
+			tracing::error!("Failed to stream file {path:?}: {e}");
 			panic!()
 		}
 	};
 
 	match MANAGER.write().play(data) {
 		Ok(ok) => {
-			tracing::info!("Audio {path} is streaming!");
+			tracing::info!("Audio {path:?} is streaming!");
 			ok
 		}
 		Err(_) => {

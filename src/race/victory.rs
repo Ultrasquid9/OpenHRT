@@ -1,4 +1,8 @@
-use std::thread::{JoinHandle, spawn};
+use std::{
+	fmt::Debug,
+	path::Path,
+	thread::{JoinHandle, spawn},
+};
 
 use kira::sound::PlaybackState;
 use macroquad::prelude::*;
@@ -43,7 +47,10 @@ impl Carrots {
 }
 
 impl Victory {
-	pub fn new(name: String, screen: String, music: &str) -> Self {
+	pub fn new<Dir>(name: String, screen: Dir, music: Dir) -> Self
+	where
+		Dir: AsRef<Path> + Debug + Send + 'static,
+	{
 		let zoom = Texture2D::from_image(&get_screen_data());
 		zoom.set_filter(FilterMode::Nearest);
 
@@ -124,7 +131,10 @@ impl Victory {
 }
 
 impl FileLoad {
-	fn new(path: String) -> Self {
+	fn new<Dir>(path: Dir) -> Self
+	where
+		Dir: AsRef<Path> + Debug + Send + 'static,
+	{
 		Self::Handle(spawn(move || load_img_blocking(&path)))
 	}
 
